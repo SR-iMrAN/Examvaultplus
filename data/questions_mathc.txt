@@ -1,0 +1,5 @@
+What is 2 + 2?;3,4,5,6;4
+What is 5 × 3?;8,15,10,12;15
+What is 10 ÷ 2?;2,5,8,10;5
+What is the square root of 16?;2,4,6,8;4
+What is 12 - 7?;3,4,5,6;5

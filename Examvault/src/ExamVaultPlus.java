@@ -116,7 +116,7 @@ public class ExamVaultPlus {
             System.out.println("\n--- Teacher Menu ---");
             System.out.println("1. Add Subject");
             System.out.println("2. Add Questions (Manual)");
-            System.out.println("3. Import Questions (coming soon)");
+            System.out.println("3. Import Questions ");
             System.out.println("4. View Student Results");
             System.out.println("5. Logout");
             System.out.print("Enter choice: ");
@@ -169,7 +169,24 @@ public class ExamVaultPlus {
                         }
                     }
                 }
-                case 3 -> System.out.println("Import questions feature coming soon.");
+                case 3 -> {
+                    if (SubjectManager.subjects.isEmpty()) {
+                        System.out.println("No subjects found. Add a subject first.");
+                        continue;
+                    }
+                    SubjectManager.listSubjects();
+                    System.out.print("Select subject by number to import questions: ");
+                    int subChoice = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (!SubjectManager.isValidSubject(subChoice)) {
+                        System.out.println("Invalid subject choice.");
+                        continue;
+                    }
+
+                    String subject = SubjectManager.getSubject(subChoice);
+                    Teacher.importQuestions(subject, scanner);
+                }
                 case 4 -> {
                     if (SubjectManager.subjects.isEmpty()) {
                         System.out.println("No subjects found.");

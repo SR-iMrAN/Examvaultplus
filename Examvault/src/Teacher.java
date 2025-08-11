@@ -93,4 +93,44 @@ public class Teacher {
             System.out.println("Error reading results.");
         }
     }
+    public static void importQuestions(String subject, Scanner scanner) {
+        System.out.print("Enter full path to the .txt file to import: ");
+        String filePath = scanner.nextLine();
+
+        File importFile = new File(filePath);
+        if (!importFile.exists() || !importFile.isFile()) {
+            System.out.println("File does not exist or is not a valid file.");
+            return;
+        }
+
+        String questionsFile = "data/questions_" + subject.toLowerCase() + ".txt";
+
+        int importedCount = 0;
+        try (
+                BufferedReader br = new BufferedReader(new FileReader(importFile));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(questionsFile, true))
+        ) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Basic validation for line format
+                String[] parts = line.split(";");
+                if (parts.length == 3) {
+                    // Check options part has commas and answer is not empty
+                    if (parts[1].contains(",") && !parts[2].trim().isEmpty()) {
+                        bw.write(line);
+                        bw.newLine();
+                        importedCount++;
+                    } else {
+                        System.out.println("Skipped invalid format line: " + line);
+                    }
+                } else {
+                    System.out.println("Skipped invalid format line: " + line);
+                }
+            }
+            System.out.println("Import finished! " + importedCount + " questions added to subject \"" + subject + "\".");
+        } catch (IOException e) {
+            System.out.println("Error during import: " + e.getMessage());
+        }
+    }
+
 }
