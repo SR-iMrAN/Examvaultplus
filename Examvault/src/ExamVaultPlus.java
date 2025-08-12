@@ -74,42 +74,48 @@ public class ExamVaultPlus {
             System.out.println("\n--- Student Menu ---");
             System.out.println("1. Take Quiz");
             System.out.println("2. View Results");
-            System.out.println("3. Logout");
+            System.out.println("3. GPA Calculator");
+            System.out.println("4. Calculator");
+            System.out.println("5. Logout");
             System.out.print("Enter choice: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
-            if (choice == 1) {
-                if (SubjectManager.subjects.isEmpty()) {
-                    System.out.println("No subjects available. Please contact your teacher.");
-                    continue;
+            switch (choice) {
+                case 1 -> {
+                    if (SubjectManager.subjects.isEmpty()) {
+                        System.out.println("No subjects available. Please contact your teacher.");
+                        continue;
+                    }
+                    SubjectManager.listSubjects();
+                    System.out.print("Select subject by number: ");
+                    int subChoice = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (!SubjectManager.isValidSubject(subChoice)) {
+                        System.out.println("Invalid subject choice.");
+                        continue;
+                    }
+
+                    String subject = SubjectManager.getSubject(subChoice);
+
+                    Quiz quiz = new Quiz();
+                    quiz.loadQuestions(subject);
+                    quiz.startQuiz(scanner, studentId, subject);
                 }
-                SubjectManager.listSubjects();
-                System.out.print("Select subject by number: ");
-                int subChoice = scanner.nextInt();
-                scanner.nextLine();
-
-                if (!SubjectManager.isValidSubject(subChoice)) {
-                    System.out.println("Invalid subject choice.");
-                    continue;
+                case 2 -> Student.viewResults(studentId);
+                case 3 -> GPACalculator.runGPA(scanner);
+                case 4 -> Calculator.runCalculator(scanner);
+                case 5 -> {
+                    System.out.println("Logging out...");
+                    return;
                 }
-
-                String subject = SubjectManager.getSubject(subChoice);
-
-                Quiz quiz = new Quiz();
-                quiz.loadQuestions(subject);
-                quiz.startQuiz(scanner, studentId, subject);
-            } else if (choice == 2) {
-                Student.viewResults(studentId);
-            } else if (choice == 3) {
-                System.out.println("Logging out...");
-                break;
-            } else {
-                System.out.println("Invalid choice, try again.");
+                default -> System.out.println("Invalid choice, try again.");
             }
         }
     }
+
 
     static void teacherMenu(Scanner scanner, String username) {
         while (true) {

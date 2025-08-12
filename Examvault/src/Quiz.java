@@ -37,17 +37,38 @@ public class Quiz {
             for (int i = 0; i < q.options.length; i++) {
                 System.out.println((i + 1) + ". " + q.options[i]);
             }
-            System.out.print("Your answer (1-" + q.options.length + "): ");
-            int ans = scanner.nextInt();
-            scanner.nextLine();
-            if (ans > 0 && ans <= q.options.length) {
+
+            while (true) {
+                System.out.print("Your answer (1-" + q.options.length + ") or 'C' for Calculator: ");
+                String input = scanner.nextLine().trim();
+
+                if (input.equalsIgnoreCase("C")) {
+                    Calculator.runCalculator(scanner);
+                    continue;  // after calculator
+                }
+
+                int ans;
+                try {
+                    ans = Integer.parseInt(input);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and " + q.options.length + " or 'C' to open calculator.");
+                    continue;
+                }
+
+                if (ans < 1 || ans > q.options.length) {
+                    System.out.println("Please select a valid option between 1 and " + q.options.length + ".");
+                    continue;
+                }
+
+
                 if (q.options[ans - 1].equalsIgnoreCase(q.answer)) {
                     score++;
                 }
+                break;
             }
         }
-        System.out.println("\nQuiz finished! Your score: " + score + "/" + questions.size());
 
+        System.out.println("\nQuiz finished! Your score: " + score + "/" + questions.size());
         Student.saveResult(studentId, subject, score, questions.size());
     }
 }
