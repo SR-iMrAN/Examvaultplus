@@ -2,27 +2,39 @@ import java.io.*;
 import java.util.*;
 import java.util.ArrayList;
 
-public class Teacher {
-    String username;
-    String password;
+public class Teacher extends User {
+
 
     static ArrayList<Teacher> teachers = new ArrayList<>();
 
-    // Static block to add fixed teachers
-    static {
-        teachers.add(new Teacher("sphrn", "12345"));
-        teachers.add(new Teacher("teacher1", "pass123"));
-        // Add more fixed teachers here if needed
+//    // Static teachers
+//    static {
+//        teachers.add(new Teacher("sphrn", "12345"));
+//        teachers.add(new Teacher("teacher1", "pass123"));
+//
+//    }
+public static void loadTeachers() {
+    teachers.clear();
+    try (BufferedReader br = new BufferedReader(new FileReader("data/teachers.txt"))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length == 4) {
+                teachers.add(new Teacher(parts[2], parts[3])); // contact = username, password
+            }
+        }
+    } catch (IOException e) {
+        System.out.println("Error loading teachers.");
     }
+}
 
     public Teacher(String username, String password) {
-        this.username = username;
-        this.password = password;
+       super(username, password);
     }
 
     public static boolean checkLogin(String username, String password) {
         for (Teacher t : teachers) {
-            if (t.username.equals(username) && t.password.equals(password)) {
+            if (t.getUsername().equals(username) && t.getPassword().equals(password)) {
                 return true;
             }
         }

@@ -1,25 +1,26 @@
 import java.io.*;
 import java.util.ArrayList;
 
-public class Student {
+public class Student extends User {
     String name;
-    String id;
+
     String contactNumber;
-    String password;
+
 
     static ArrayList<Student> students = new ArrayList<>();
-    static final String STUDENT_FILE = "data/students.txt";
+
 
     public Student(String name, String id, String contactNumber, String password) {
+        super(id,password);
         this.name = name;
-        this.id = id;
+
         this.contactNumber = contactNumber;
-        this.password = password;
+
     }
 
     public static void loadStudents() {
         students.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(STUDENT_FILE))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("data/students.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -34,13 +35,13 @@ public class Student {
 
     public static boolean addStudent(String name, String id, String contactNumber) {
         for (Student s : students) {
-            if (s.id.equals(id)) {
+            if (s.getUsername().equals(id)) {
                 return false; // ID already registered
             }
         }
         Student newStudent = new Student(name, id, contactNumber, id); // password = id
         students.add(newStudent);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(STUDENT_FILE, true))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt", true))) {
             bw.write(name + "," + id + "," + contactNumber + "," + id);
             bw.newLine();
         } catch (IOException e) {
@@ -51,7 +52,7 @@ public class Student {
 
     public static boolean checkLogin(String id, String password) {
         for (Student s : students) {
-            if (s.id.equals(id) && s.password.equals(password)) {
+            if (s.getUsername().equals(id) && s.equals(password)) {
                 return true;
             }
         }
