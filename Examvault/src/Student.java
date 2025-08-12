@@ -33,31 +33,34 @@ public class Student extends User {
         }
     }
 
-    public static boolean addStudent(String name, String id, String contactNumber) {
-        for (Student s : students) {
-            if (s.getUsername().equals(id)) {
-                return false; // ID already registered
-            }
-        }
-        Student newStudent = new Student(name, id, contactNumber, id); // password = id
-        students.add(newStudent);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt", true))) {
-            bw.write(name + "," + id + "," + contactNumber + "," + id);
-            bw.newLine();
-        } catch (IOException e) {
-            System.out.println("Error saving student.");
-        }
-        return true;
-    }
-
+//    public static boolean addStudent(String name, String id, String contactNumber) {
+//        for (Student s : students) {
+//            if (s.getUsername().equals(id)) {
+//                return false; // ID already registered
+//            }
+//        }
+//        Student newStudent = new Student(name, id, contactNumber, id); // password = id
+//        students.add(newStudent);
+//        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/students.txt", true))) {
+//            bw.write(name + "," + id + "," + contactNumber + "," + id);
+//            bw.newLine();
+//        } catch (IOException e) {
+//            System.out.println("Error saving student.");
+//        }
+//        return true;
+//    }
+public Student(String username, String password) {
+    super(username, password);
+}
     public static boolean checkLogin(String id, String password) {
         for (Student s : students) {
-            if (s.getUsername().equals(id) && s.equals(password)) {
+            if (s.getUsername().equals(id) && s.getPassword().equals(password)) {
                 return true;
             }
         }
         return false;
     }
+
 
     public static void viewResults(String id) {
         String resultsFile = "data/results.txt";

@@ -18,11 +18,11 @@ public class StudentRegistration extends Registration implements Savable {
         System.out.print("Enter Contact Number: ");
         this.contactNumber = scanner.nextLine();
 
-        if (Student.addStudent(name, id, contactNumber)) {
-            System.out.println("Student registered successfully!");
-        } else {
-            System.out.println("ID already exists!");
-        }
+//        if (Student.addStudent(name, id, contactNumber)) {
+//            System.out.println("Student registered successfully!");
+//        } else {
+//            System.out.println("ID already exists!");
+//        }
     }
     @Override
     public void save(){
