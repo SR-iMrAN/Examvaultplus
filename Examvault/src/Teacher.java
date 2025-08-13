@@ -1,45 +1,57 @@
 import java.io.*;
 import java.util.*;
-import java.util.ArrayList;
 
 public class Teacher extends User {
-
-
+    private String namet;
     static ArrayList<Teacher> teachers = new ArrayList<>();
 
-//    // Static teachers
-//    static {
-//        teachers.add(new Teacher("sphrn", "12345"));
-//        teachers.add(new Teacher("teacher1", "pass123"));
-//
-//    }
-public static void loadTeachers() {
-    teachers.clear();
-    try (BufferedReader br = new BufferedReader(new FileReader("data/teachers.txt"))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] parts = line.split(",");
-            if (parts.length == 4) {
-                teachers.add(new Teacher(parts[2], parts[3])); // contact = username, password
-            }
-        }
-    } catch (IOException e) {
-        System.out.println("Error loading teachers.");
+    // Constructor that sets both username/password and teacher's name
+    public Teacher(String username, String password, String namet) {
+        super(username, password);
+        this.namet = namet;
     }
-}
 
+    // Overloaded constructor without name
     public Teacher(String username, String password) {
-       super(username, password);
+        super(username, password);
     }
 
-    public static boolean checkLogin(String username, String password) {
+    public String getNameT() {
+        return namet;
+    }
+
+    public static void loadTeachers() {
+        teachers.clear();
+        try (BufferedReader br = new BufferedReader(new FileReader("data/teachers.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 4) {
+                    String name = parts[0].trim();
+                    String contact = parts[1].trim();
+                    String username = parts[2].trim();
+                    String password = parts[3].trim();
+                    teachers.add(new Teacher(username, password, name));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading teachers.");
+        }
+    }
+
+
+    public static Teacher checkLogin(String username, String password) {
+        username = username.trim();
+        password = password.trim();
+
         for (Teacher t : teachers) {
-            if (t.getUsername().equals(username) && t.getPassword().equals(password)) {
-                return true;
+            if (t.getUsername().equalsIgnoreCase(username) && t.getPassword().equals(password)) {
+                return t;
             }
         }
-        return false;
+        return null;
     }
+
 
     public static void addQuestion(String subject, String questionText, String[] options, String answer) {
         String questionsFile = "data/questions_" + subject.toLowerCase() + ".txt";
@@ -49,7 +61,7 @@ public static void loadTeachers() {
             for (String opt : options) {
                 sb.append(opt).append(",");
             }
-            sb.deleteCharAt(sb.length() - 1); // remove last comma
+            sb.deleteCharAt(sb.length() - 1);
             sb.append(";").append(answer);
 
             bw.write(sb.toString());
@@ -92,7 +104,6 @@ public static void loadTeachers() {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                // parts format: studentId,subject,score,total
                 if (parts.length == 4 && parts[1].equalsIgnoreCase(subject)) {
                     System.out.println(parts[0] + " | " + parts[2] + " | " + parts[3]);
                     found = true;
@@ -105,6 +116,7 @@ public static void loadTeachers() {
             System.out.println("Error reading results.");
         }
     }
+
     public static void importQuestions(String subject, Scanner scanner) {
         System.out.print("Enter full path to the .txt file to import: ");
         String filePath = scanner.nextLine();
@@ -116,7 +128,6 @@ public static void loadTeachers() {
         }
 
         String questionsFile = "data/questions_" + subject.toLowerCase() + ".txt";
-
         int importedCount = 0;
         try (
                 BufferedReader br = new BufferedReader(new FileReader(importFile));
@@ -124,17 +135,11 @@ public static void loadTeachers() {
         ) {
             String line;
             while ((line = br.readLine()) != null) {
-                // Basic validation for line format
                 String[] parts = line.split(";");
-                if (parts.length == 3) {
-                    // Check options part has commas and answer is not empty
-                    if (parts[1].contains(",") && !parts[2].trim().isEmpty()) {
-                        bw.write(line);
-                        bw.newLine();
-                        importedCount++;
-                    } else {
-                        System.out.println("Skipped invalid format line: " + line);
-                    }
+                if (parts.length == 3 && parts[1].contains(",") && !parts[2].trim().isEmpty()) {
+                    bw.write(line);
+                    bw.newLine();
+                    importedCount++;
                 } else {
                     System.out.println("Skipped invalid format line: " + line);
                 }
@@ -144,5 +149,4 @@ public static void loadTeachers() {
             System.out.println("Error during import: " + e.getMessage());
         }
     }
-
 }

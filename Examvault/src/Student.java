@@ -25,7 +25,12 @@ public class Student extends User {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 4) {
-                    students.add(new Student(parts[0], parts[1], parts[2], parts[3]));
+                    students.add(new Student(
+                            parts[0].trim(),
+                            parts[1].trim(),
+                            parts[2].trim(),
+                            parts[3].trim()
+                    ));
                 }
             }
         } catch (IOException e) {
@@ -33,7 +38,8 @@ public class Student extends User {
         }
     }
 
-//    public static boolean addStudent(String name, String id, String contactNumber) {
+
+    //    public static boolean addStudent(String name, String id, String contactNumber) {
 //        for (Student s : students) {
 //            if (s.getUsername().equals(id)) {
 //                return false; // ID already registered
@@ -52,14 +58,18 @@ public class Student extends User {
 public Student(String username, String password) {
     super(username, password);
 }
-    public static boolean checkLogin(String id, String password) {
+    public static Student checkLogin(String id, String password) {
+        id = id.trim();
+        password = password.trim();
+
         for (Student s : students) {
             if (s.getUsername().equals(id) && s.getPassword().equals(password)) {
-                return true;
+                return s;
             }
         }
-        return false;
+        return null;
     }
+
 
 
     public static void viewResults(String id) {

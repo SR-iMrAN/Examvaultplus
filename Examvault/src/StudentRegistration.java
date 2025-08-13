@@ -30,6 +30,7 @@ public class StudentRegistration extends Registration implements Savable {
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(STUDENT_FILE, true))) {
                 bw.write(name + "," + id + "," + contactNumber + "," + id);
                 bw.newLine();
+                Student.students.add(new Student(name, id, contactNumber, id));
             } catch (IOException e) {
                 System.out.println("Error saving student.");
             }

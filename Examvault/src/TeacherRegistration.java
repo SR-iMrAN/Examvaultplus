@@ -23,6 +23,7 @@ public class TeacherRegistration extends Registration implements Savable {
                 bw.write(name + "," + id + "," + contact + "," + password);
                 bw.newLine();
                 System.out.println("Teacher registered successfully!");
+                Teacher.teachers.add(new Teacher(contact, password, name));
             } catch (IOException e) {
                 System.out.println("Error saving teacher data.");
             }

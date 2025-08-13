@@ -1,6 +1,6 @@
 import java.io.Console;
 import java.util.Scanner;
-
+import java.io.*;
 public class ExamVaultPlus {
 
     private static final int BOX_WIDTH = 100; // width for menu box
@@ -130,22 +130,41 @@ public class ExamVaultPlus {
                     String username = scanner.nextLine();
                     String password = readPassword("Enter Teacher Password: ", scanner);
 
-                    if (Teacher.checkLogin(username, password)) {
+                    Teacher teacher = Teacher.checkLogin(username, password);
+                    if (teacher != null) {
+                        printMessage("Login successful!");
+                        printMessage(" \nWelcome, " + teacher.getNameT()+ "!");
+//                        pause(scanner, null);
                         teacherMenu(scanner, username);
                     } else {
-                        pause(scanner, "Invalid teacher credentials.");
+                        pause(scanner, "Invalid student credentials.");
                     }
+
+
+//                    if (Teacher.checkLogin(username, password)) {
+////                        System.out.println("Welcome " +Student.name);
+//                        pause(scanner, null);
+//                        teacherMenu(scanner, username);
+//
+//                    } else {
+//                        pause(scanner, "Invalid teacher credentials.");
+//                    }
                 }
                 case 2 -> {
                     System.out.print("Enter your ID: ");
                     String id = scanner.nextLine();
                     String password = readPassword("Enter your Password: ", scanner);
 
-                    if (Student.checkLogin(id, password)) {
+                    Student student = Student.checkLogin(id, password);
+                    if (student != null) {
+                        printMessage("Login successful!");
+                        printMessage("\nWelcome, " + student.name + "!");
+//                        pause(scanner, null);
                         studentMenu(scanner, id);
                     } else {
                         pause(scanner, "Invalid student credentials.");
                     }
+
                 }
                 case 3 -> { return; }
                 default -> pause(scanner, "Invalid choice.");
