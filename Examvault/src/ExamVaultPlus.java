@@ -11,25 +11,13 @@ public class ExamVaultPlus {
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_BOLD = "\u001B[1m";
     public static final String ANSI_BRIGHT_YELLOW = "\u001B[93m";
-    public static final String ANSI_BG_BRIGHT_WHITE = "\u001B[107m";
-
-
-
-
     public static final String ANSI_WHITE = "\u001B[37m";
     public static final String ANSI_BRIGHT_WHITE = "\u001B[97m";
-
-
-
     public static final String ANSI_BRIGHT_CYAN = "\u001B[96m";
     public static final String ANSI_BRIGHT_RED = "\u001B[91m";
     public static final String ANSI_PURPLE_BRIGHT = "\u001B[95m";
-    public static final String ANSI_BG_BLUE = "\u001B[44m";
-    public static final String ANSI_BG_BLACK = "\u001B[40m";
-
-    // Regular Colors
-//
     public static final String ANSI_GREEN_BRIGHT = "\u001B[92m";
+
     public static void clearScreen() {
         for (int i = 0; i < 50; i++) System.out.println();
     }
@@ -40,7 +28,7 @@ public class ExamVaultPlus {
     }
 
     public static void printMessage(String message) {
-        System.out.println("\n" + ANSI_GREEN + message + ANSI_RESET + "\n");
+        System.out.println("\n" + ANSI_BOLD + ANSI_RED + message + ANSI_RESET + "\n");
     }
 
     public static String readPassword(String prompt, Scanner scanner) {
@@ -65,17 +53,19 @@ public class ExamVaultPlus {
     public static void main(String[] args) {
         Student.loadStudents();
         Teacher.loadTeachers();
+        SubjectManager.loadSubjects();
+
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
             clearScreen();
             clrscr();
-            System.out.println(ANSI_BLUE + "                                                        "+ ANSI_BOLD+"======================================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN_BRIGHT +ANSI_BOLD +"                                                                               "+" ★★★ ExamVaultPlus ★★★                        " + ANSI_RESET);
+            System.out.println(ANSI_BLUE + "                                                        " + ANSI_BOLD + "======================================================================" + ANSI_RESET);
+            System.out.println(ANSI_GREEN_BRIGHT + ANSI_BOLD + "                                                                               ★★★ ExamVaultPlus ★★★" + ANSI_RESET);
             System.out.println(ANSI_BLUE + "                                                         ----------------------------------------------------------------------" + ANSI_RESET);
-            System.out.println(ANSI_BRIGHT_YELLOW+"                                                                                       1. Registration                            ");
-            System.out.println(ANSI_BRIGHT_CYAN+"                                                                                       2. Login                               ");
-            System.out.println(ANSI_RED +"                                                                                       3. Exit                                ");
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                       1. Registration");
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                       2. Login");
+            System.out.println(ANSI_RED + "                                                                                       3. Exit");
             System.out.println(ANSI_BLUE + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
@@ -94,18 +84,16 @@ public class ExamVaultPlus {
         }
     }
 
+    // ----------------- REGISTRATION MENU -----------------
     static void registrationMenu(Scanner scanner) {
         while (true) {
-
             clrscr();
             clearScreen();
-            System.out.println(ANSI_BLUE + "    ==================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN + "                  === Registration ===            " + ANSI_RESET);
-            System.out.println(ANSI_BLUE + "--------------------------------------------------" + ANSI_RESET);
-            System.out.println("                 1. As Teacher                     ");
-            System.out.println("                 2. As Student                     ");
-            System.out.println("                 3. Return                         ");
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Registration ==============================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. As Teacher");
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. As Student");
+            System.out.println(ANSI_RED + "                                                                                      3. Return");
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
             int choice = scanner.nextInt();
@@ -130,17 +118,16 @@ public class ExamVaultPlus {
         }
     }
 
+    // ----------------- LOGIN MENU -----------------
     static void loginMenu(Scanner scanner) {
         while (true) {
             clearScreen();
             clrscr();
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN + "                    === Login ===                  " + ANSI_RESET);
-            System.out.println(ANSI_BLUE + "--------------------------------------------------" + ANSI_RESET);
-            System.out.println("                 1. Login as Teacher               ");
-            System.out.println("                 2. Login as Student               ");
-            System.out.println("                 3. Return                         ");
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                        " + ANSI_BOLD + "============================== Login ==============================" + ANSI_RESET);
+            System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      1. Login as Teacher");
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      2. Login as Student");
+            System.out.println(ANSI_RED + "                                                                                      3. Return");
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
             int choice = scanner.nextInt();
@@ -155,47 +142,18 @@ public class ExamVaultPlus {
         }
     }
 
-    static void teacherLogin(Scanner scanner) {
-        System.out.print("Enter Teacher Username: ");
-        String username = scanner.nextLine();
-        String password = readPassword("Enter Teacher Password: ", scanner);
-
-        Teacher teacher = Teacher.checkLogin(username, password);
-        if (teacher != null) {
-            printMessage("Login successful! Welcome, " + teacher.getNameT() + "!");
-            teacherMenu(scanner, username);
-        } else {
-            pause(scanner, "Invalid teacher credentials.");
-        }
-    }
-
-    static void studentLogin(Scanner scanner) {
-        System.out.print("Enter your ID: ");
-        String id = scanner.nextLine();
-        String password = readPassword("Enter your Password: ", scanner);
-
-        Student student = Student.checkLogin(id, password);
-        if (student != null) {
-            printMessage("Login successful! Welcome, " + student.name + "!");
-            studentMenu(scanner, id);
-        } else {
-            pause(scanner, "Invalid student credentials.");
-        }
-    }
-
+    // ----------------- STUDENT MENU -----------------
     static void studentMenu(Scanner scanner, String studentId) {
         while (true) {
             clearScreen();
             clrscr();
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN + "                 === Student Menu ===              " + ANSI_RESET);
-            System.out.println(ANSI_BLUE + "--------------------------------------------------" + ANSI_RESET);
-            System.out.println("                 1. Take Quiz                      ");
-            System.out.println("                 2. View Results                   ");
-            System.out.println("                 3. GPA Calculator                 ");
-            System.out.println("                 4. Calculator                     ");
-            System.out.println("                 5. Logout                         ");
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                        " + ANSI_BOLD + "============================== Student Menu ==============================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      1. Take Quiz");
+            System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      2. View Results");
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                                                      3. GPA Calculator");
+            System.out.println(ANSI_BRIGHT_WHITE + "                                                                                      4. Calculator");
+            System.out.println(ANSI_RED + "                                                                                      5. Logout");
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
             int choice = scanner.nextInt();
@@ -225,42 +183,18 @@ public class ExamVaultPlus {
         }
     }
 
-    static void takeQuiz(Scanner scanner, String studentId) {
-        if (SubjectManager.subjects.isEmpty()) {
-            pause(scanner, "No subjects available. Please contact your teacher.");
-            return;
-        }
-        SubjectManager.listSubjects();
-        System.out.print("Select subject by number: ");
-        int subChoice = scanner.nextInt();
-        scanner.nextLine();
-
-        if (!SubjectManager.isValidSubject(subChoice)) {
-            pause(scanner, "Invalid subject choice.");
-            return;
-        }
-
-        String subject = SubjectManager.getSubject(subChoice);
-
-        Quiz quiz = new Quiz();
-        quiz.loadQuestions(subject);
-        quiz.startQuiz(scanner, studentId, subject);
-        pause(scanner, null);
-    }
-
+    // ----------------- TEACHER MENU -----------------
     static void teacherMenu(Scanner scanner, String username) {
         while (true) {
             clearScreen();
             clrscr();
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN + "                 === Teacher Menu ===              " + ANSI_RESET);
-            System.out.println(ANSI_BLUE + "--------------------------------------------------" + ANSI_RESET);
-            System.out.println("                 1. Add Subject                    ");
-            System.out.println("                 2. Add Questions (Manual)         ");
-            System.out.println("                 3. Import Questions               ");
-            System.out.println("                 4. View Student Results           ");
-            System.out.println("                 5. Logout                         ");
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
+            System.out.println(ANSI_GREEN_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Teacher Menu ==============================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. Add Subject");
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. Add Questions (Manual)");
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                                                      3. Import Questions");
+            System.out.println(ANSI_BRIGHT_WHITE + "                                                                                      4. View Student Results");
+            System.out.println(ANSI_RED + "                                                                                      5. Logout");
+            System.out.println(ANSI_GREEN_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
             int choice = scanner.nextInt();
@@ -286,6 +220,7 @@ public class ExamVaultPlus {
         }
     }
 
+    // ----------------- ADD QUESTIONS MENU -----------------
     static void addQuestions(Scanner scanner) {
         if (SubjectManager.subjects.isEmpty()) {
             pause(scanner, "No subjects found. Add a subject first.");
@@ -306,14 +241,12 @@ public class ExamVaultPlus {
         while (true) {
             clearScreen();
             clrscr();
-            System.out.println(ANSI_BLUE + "         ==================================================" + ANSI_RESET);
-            System.out.println(ANSI_GREEN + "                   === Choose Question Type ===           " + ANSI_RESET);
-            System.out.println(ANSI_BLUE + "         --------------------------------------------------" + ANSI_RESET);
-            System.out.println("                 1. MCQ                            ");
-            System.out.println("                 2. CQ (Coming soon)               ");
-            System.out.println("                 3. MCQ + CQ (Coming soon)         ");
-            System.out.println("                 4. Return                         ");
-            System.out.println(ANSI_BLUE + "==================================================" + ANSI_RESET);
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Choose Question Type ==============================" + ANSI_RESET);
+            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. MCQ");
+            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. CQ (Coming soon)");
+            System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      3. MCQ + CQ (Coming soon)");
+            System.out.println(ANSI_RED + "                                                                                      4. Return");
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("Enter choice: ");
 
             int qChoice = scanner.nextInt();
@@ -367,6 +300,58 @@ public class ExamVaultPlus {
 
         String subject = SubjectManager.getSubject(subChoice);
         Teacher.viewResultsBySubject(subject);
+        pause(scanner, null);
+    }
+
+    // ----------------- LOGIN HELPERS -----------------
+    static void teacherLogin(Scanner scanner) {
+        System.out.print("Enter Teacher Username: ");
+        String username = scanner.nextLine();
+        String password = readPassword("Enter Teacher Password: ", scanner);
+
+        Teacher teacher = Teacher.checkLogin(username, password);
+        if (teacher != null) {
+            printMessage("Login successful! Welcome, " + teacher.getNameT() + "!");
+            teacherMenu(scanner, username);
+        } else {
+            pause(scanner, "Invalid teacher credentials.");
+        }
+    }
+
+    static void studentLogin(Scanner scanner) {
+        System.out.print("Enter your ID: ");
+        String id = scanner.nextLine();
+        String password = readPassword("Enter your Password: ", scanner);
+
+        Student student = Student.checkLogin(id, password);
+        if (student != null) {
+            printMessage("Login successful! Welcome, " + student.name + "!");
+            studentMenu(scanner, id);
+        } else {
+            pause(scanner, "Invalid student credentials.");
+        }
+    }
+
+    static void takeQuiz(Scanner scanner, String studentId) {
+        if (SubjectManager.subjects.isEmpty()) {
+            pause(scanner, "No subjects available. Please contact your teacher.");
+            return;
+        }
+        SubjectManager.listSubjects();
+        System.out.print("Select subject by number: ");
+        int subChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        if (!SubjectManager.isValidSubject(subChoice)) {
+            pause(scanner, "Invalid subject choice.");
+            return;
+        }
+
+        String subject = SubjectManager.getSubject(subChoice);
+
+        Quiz quiz = new Quiz();
+        quiz.loadQuestions(subject);
+        quiz.startQuiz(scanner, studentId, subject);
         pause(scanner, null);
     }
 }
