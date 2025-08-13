@@ -9,15 +9,15 @@ public class Calculator {
     public static final String ANSI_GREEN_BRIGHT = "\u001B[92m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_PURPLE_BRIGHT = "\u001B[95m";
-    public static void clearScreen() {
-        for (int i = 0; i < 15; i++) System.out.println();
-    }
+//    public static void clearScreen() {
+//        for (int i = 0; i < 15; i++) System.out.println();
+//    }
     public static void runCalculator(Scanner scanner) {
         while (true) {
             // Clear screen
             System.out.print("\033[H\033[2J");
             System.out.flush();
-            clearScreen();
+//            clearScreen();
             // Calculator banner
             System.out.println(ANSI_PURPLE_BRIGHT + "                                                        "
                     + ANSI_BOLD + "============================== Calculator =============================="
@@ -37,7 +37,7 @@ public class Calculator {
                 System.out.println(ANSI_RED + ANSI_BOLD + "\nExiting calculator..." + ANSI_RESET);
                 break;
             }
-            clearScreen();
+//            clearScreen();
             System.out.print("\nEnter first number: ");
             double num1 = scanner.nextDouble();
             scanner.nextLine();

@@ -33,18 +33,22 @@ public class Quiz {
 
         int score = 0;
         for (Question q : questions) {
-            System.out.println("\n" + q.questionText);
-            for (int i = 0; i < q.options.length; i++) {
-                System.out.println((i + 1) + ". " + q.options[i]);
-            }
+            boolean answered = false;
 
-            while (true) {
+            while (!answered) {
+
+                System.out.println("\n" + q.questionText);
+                for (int i = 0; i < q.options.length; i++) {
+                    System.out.println((i + 1) + ". " + q.options[i]);
+                }
+
                 System.out.print("Your answer (1-" + q.options.length + ") or 'C' for Calculator: ");
                 String input = scanner.nextLine().trim();
 
                 if (input.equalsIgnoreCase("C")) {
                     Calculator.runCalculator(scanner);
-                    continue;  // after calculator
+                    // After calculator exits, loop will repeat and question will show again
+                    continue;
                 }
 
                 int ans;
@@ -60,11 +64,11 @@ public class Quiz {
                     continue;
                 }
 
-
                 if (q.options[ans - 1].equalsIgnoreCase(q.answer)) {
                     score++;
                 }
-                break;
+
+                answered = true;
             }
         }
 

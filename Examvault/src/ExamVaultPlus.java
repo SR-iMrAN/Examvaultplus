@@ -143,14 +143,15 @@ public class ExamVaultPlus {
     }
 
     // ----------------- STUDENT MENU -----------------
-    static void studentMenu(Scanner scanner, String studentId) {
+    static void studentMenu(Scanner scanner, String studentId ,String studentName) {
         while (true) {
             clearScreen();
             clrscr();
+            printMessage(" " + ANSI_RED + "\u2764 " + ANSI_RESET + " Welcome to ExamVault+, " + ANSI_GREEN_BRIGHT + studentName + ANSI_RESET + "!");
             System.out.println(ANSI_BRIGHT_YELLOW + "                                                        " + ANSI_BOLD + "============================== Student Menu ==============================" + ANSI_RESET);
             System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      1. Take Quiz");
             System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      2. View Results");
-            System.out.println(ANSI_PURPLE_BRIGHT + "                                                                                      3. GPA Calculator");
+            System.out.println(ANSI_PURPLE_BRIGHT + "                                                                                      3. CGPA Calculator");
             System.out.println(ANSI_BRIGHT_WHITE + "                                                                                      4. Calculator");
             System.out.println(ANSI_RED + "                                                                                      5. Logout");
             System.out.println(ANSI_BRIGHT_YELLOW + "                                                        ======================================================================" + ANSI_RESET);
@@ -166,7 +167,7 @@ public class ExamVaultPlus {
                     pause(scanner, null);
                 }
                 case 3 -> {
-                    GPACalculator.runGPA(scanner);
+                    CGPACalculator.runGPA(scanner,studentName);
                     pause(scanner, null);
                 }
                 case 4 -> {
@@ -184,10 +185,11 @@ public class ExamVaultPlus {
     }
 
     // ----------------- TEACHER MENU -----------------
-    static void teacherMenu(Scanner scanner, String username) {
+    static void teacherMenu(Scanner scanner, String username , String teachername) {
         while (true) {
             clearScreen();
             clrscr();
+            printMessage(" " + ANSI_RED + "\u2764 " + ANSI_RESET + " Welcome to ExamVault+, " + ANSI_GREEN_BRIGHT + teachername + ANSI_RESET + "!");
             System.out.println(ANSI_GREEN_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Teacher Menu ==============================" + ANSI_RESET);
             System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. Add Subject");
             System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. Add Questions (Manual)");
@@ -312,7 +314,7 @@ public class ExamVaultPlus {
         Teacher teacher = Teacher.checkLogin(username, password);
         if (teacher != null) {
             printMessage("Login successful! Welcome, " + teacher.getNameT() + "!");
-            teacherMenu(scanner, username);
+            teacherMenu(scanner, username,teacher.getNameT());
         } else {
             pause(scanner, "Invalid teacher credentials.");
         }
@@ -326,7 +328,7 @@ public class ExamVaultPlus {
         Student student = Student.checkLogin(id, password);
         if (student != null) {
             printMessage("Login successful! Welcome, " + student.name + "!");
-            studentMenu(scanner, id);
+            studentMenu(scanner, id,student.name);
         } else {
             pause(scanner, "Invalid student credentials.");
         }
