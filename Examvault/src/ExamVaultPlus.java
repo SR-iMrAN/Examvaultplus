@@ -1,5 +1,6 @@
 import java.io.Console;
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class ExamVaultPlus {
 
@@ -272,19 +273,27 @@ public class ExamVaultPlus {
         }
         SubjectManager.listSubjects();
         System.out.print("Select subject by number to import questions: ");
-        int subChoice = scanner.nextInt();
-        scanner.nextLine();
 
-        if (!SubjectManager.isValidSubject(subChoice)) {
-            pause(scanner, "Invalid subject choice.");
-            return;
+        try {
+            int subChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (!SubjectManager.isValidSubject(subChoice)) {
+                pause(scanner, "Invalid subject choice.");
+                return;
+            }
+
+            String subject = SubjectManager.getSubject(subChoice);
+            Teacher.importQuestions(subject, scanner);
+            pause(scanner, null);
         }
-
-        String subject = SubjectManager.getSubject(subChoice);
-        Teacher.importQuestions(subject, scanner);
-        pause(scanner, null);
+        catch (InputMismatchException e)
+        {
+            scanner.nextLine();
+            pause(scanner,"Invalid Input. Please enter a number . ");
+        }
     }
-
+    
     static void viewResultsBySubject(Scanner scanner) {
         if (SubjectManager.subjects.isEmpty()) {
             pause(scanner, "No subjects found.");
