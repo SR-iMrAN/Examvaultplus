@@ -12,6 +12,7 @@
 - Register and login with unique Student ID.
 - Take quizzes in various subjects.
 - View past quiz results.
+- Students can see the correct answers to questions after finishing the quiz.
 - Marks-based and subject-based GPA/CGPA calculations.
 - Interactive console calculator during quizzes.
 
