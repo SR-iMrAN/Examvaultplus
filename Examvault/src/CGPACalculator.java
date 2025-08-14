@@ -132,14 +132,24 @@ class CGPACalculator {
                     System.out.print("Enter Letter Grade or Grade Point (A+, A, ... or 4.00, 3.75, ...): ");
                     String gradeInput = sc.nextLine().trim().toUpperCase();
 
-                    if (gradeInput.matches("\\d+(\\.\\d+)?")) { // Accepts 3, 3.0, 3.75, etc.
+                     if (gradeInput.matches("\\d+(\\.\\d+)?")) 
+                    { 
                         gp = Double.parseDouble(gradeInput);
+
+                       
+                        if (gp < 0.0 || gp > 4.0) {
+                            System.out.println("Invalid Input! Grade point must be between 0.00 and 4.00.");
+                            continue; 
+                        }
+                        
+
                         String[] info = getGradeInfo(cgpaToMarks(gp));
                         grade = info[0];
                         remarks = info[2];
                         System.out.printf("Grade: %s | Grade Point: %.2f%n", grade, gp);
                         break;
-                    } else {
+                    } 
+                     else {
                         String[] info = getGradeInfoByGrade(gradeInput);
                         if (info != null) {
                             grade = info[0];
