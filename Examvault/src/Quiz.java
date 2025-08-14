@@ -74,5 +74,18 @@ public class Quiz {
 
         System.out.println("\nQuiz finished! Your score: " + score + "/" + questions.size());
         Student.saveResult(studentId, subject, score, questions.size());
+
+         System.out.print("\nDo you want to review the correct answers? (y/n): ");
+        String choice = scanner.nextLine().trim();
+
+        if (choice.equalsIgnoreCase("y")) {
+            System.out.println("\n--- Review Correct Answers ---");
+            int questionNumber = 1;
+            for (Question q : questions) {
+                System.out.println("\n" + questionNumber + ". " + q.questionText);
+                System.out.println( "Correct Answer: " + q.answer);
+                questionNumber++;
+            }
+        }
     }
 }
