@@ -1,7 +1,7 @@
 import java.io.Console;
 import java.util.Scanner;
 import java.util.InputMismatchException;
-
+import java.util.*;
 public class ExamVaultPlus {
 
     // ANSI colors
@@ -70,17 +70,22 @@ public class ExamVaultPlus {
             System.out.println(ANSI_BLUE + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (choice) {
-                case 1 -> registrationMenu(scanner);
-                case 2 -> loginMenu(scanner);
-                case 3 -> {
-                    printMessage("Exiting program. Goodbye!");
-                    return;
+                switch (choice) {
+                    case 1 -> registrationMenu(scanner);
+                    case 2 -> loginMenu(scanner);
+                    case 3 -> {
+                        printMessage("Exiting program. Goodbye!");
+                        return;
+                    }
+                    default -> pause(scanner, "Invalid choice, try again.");
                 }
-                default -> pause(scanner, "Invalid choice, try again.");
+            } catch (InputMismatchException e) {
+                scanner.nextLine();
+                System.out.println("Invalid input! Please enter number(1-3).");
             }
         }
     }
@@ -114,7 +119,7 @@ public class ExamVaultPlus {
                     pause(scanner, null);
                 }
                 case 3 -> { return; }
-                default -> pause(scanner, "Invalid choice.");
+                default -> pause(scanner, "Invalid choice.Please Enter number(1-3).");
             }
         }
     }
@@ -138,7 +143,7 @@ public class ExamVaultPlus {
                 case 1 -> teacherLogin(scanner);
                 case 2 -> studentLogin(scanner);
                 case 3 -> { return; }
-                default -> pause(scanner, "Invalid choice.");
+                default -> pause(scanner, "Invalid choice.Please Enter number(1-3).");
             }
         }
     }
@@ -186,7 +191,7 @@ public class ExamVaultPlus {
             } catch (InputMismatchException e) {
                 {
                     scanner.nextLine();
-                    pause(scanner,"Invalid Input. Please enter a number . ");
+                    pause(scanner,"Invalid Input.Please Enter number(1-5).");
                 }
             }
         }
@@ -225,7 +230,7 @@ public class ExamVaultPlus {
                     pause(scanner, null);
                     return;
                 }
-                default -> pause(scanner, "Invalid choice, try again.");
+                default -> pause(scanner, "Invalid choice. Please Enter number(1-5).");
             }
         }
     }
@@ -233,7 +238,7 @@ public class ExamVaultPlus {
     // ----------------- ADD QUESTIONS MENU -----------------
     static void addQuestions(Scanner scanner) {
         if (SubjectManager.subjects.isEmpty()) {
-            pause(scanner, "No subjects found. Add a subject first.");
+            pause(scanner, "No Subjects found. Add a subject first.");
             return;
         }
         SubjectManager.listSubjects();
@@ -242,7 +247,7 @@ public class ExamVaultPlus {
         scanner.nextLine();
 
         if (!SubjectManager.isValidSubject(subChoice)) {
-            pause(scanner, "Invalid subject choice.");
+            pause(scanner, "Invalid Subject choice.");
             return;
         }
 
