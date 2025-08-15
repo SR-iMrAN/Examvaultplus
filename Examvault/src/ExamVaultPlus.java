@@ -119,7 +119,7 @@ public class ExamVaultPlus {
         }
     }
 
-    // ----------------- LOGIN MENU -----------------
+   // ----------------- LOGIN MENU -----------------
     static void loginMenu(Scanner scanner) {
         while (true) {
             clearScreen();
@@ -130,16 +130,27 @@ public class ExamVaultPlus {
             System.out.println(ANSI_RED + "                                                                                      3. Return");
             System.out.println(ANSI_BRIGHT_CYAN + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
+try {
+    int choice = scanner.nextInt();
+    scanner.nextLine();
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
 
-            switch (choice) {
-                case 1 -> teacherLogin(scanner);
-                case 2 -> studentLogin(scanner);
-                case 3 -> { return; }
-                default -> pause(scanner, "Invalid choice.");
-            }
+    switch (choice) {
+        case 1 -> teacherLogin(scanner);
+        case 2 -> studentLogin(scanner);
+        case 3 -> {
+            return;
+        }
+        default -> pause(scanner, "Invalid choice.");
+    }
+}
+catch(InputMismatchException e)
+{
+    pause(scanner, "Invalid input. Please enter a number(1-3).");
+    continue;
+}
+
+
         }
     }
 
