@@ -158,29 +158,36 @@ public class ExamVaultPlus {
             System.out.println(ANSI_BRIGHT_YELLOW + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (choice) {
-                case 1 -> takeQuiz(scanner, studentId);
-                case 2 -> {
-                    Student.viewResults(studentId);
-                    pause(scanner, null);
+                switch (choice) {
+                    case 1 -> takeQuiz(scanner, studentId);
+                    case 2 -> {
+                        Student.viewResults(studentId);
+                        pause(scanner, null);
+                    }
+                    case 3 -> {
+                        CGPACalculator.runGPA(scanner, studentName);
+                        pause(scanner, null);
+                    }
+                    case 4 -> {
+                        Calculator.runCalculator(scanner);
+                        pause(scanner, null);
+                    }
+                    case 5 -> {
+                        printMessage("Logging out...");
+                        pause(scanner, null);
+                        return;
+                    }
+                    default -> pause(scanner, "Invalid choice, try again.");
                 }
-                case 3 -> {
-                    CGPACalculator.runGPA(scanner,studentName);
-                    pause(scanner, null);
+            } catch (InputMismatchException e) {
+                {
+                    scanner.nextLine();
+                    pause(scanner,"Invalid Input. Please enter a number . ");
                 }
-                case 4 -> {
-                    Calculator.runCalculator(scanner);
-                    pause(scanner, null);
-                }
-                case 5 -> {
-                    printMessage("Logging out...");
-                    pause(scanner, null);
-                    return;
-                }
-                default -> pause(scanner, "Invalid choice, try again.");
             }
         }
     }
