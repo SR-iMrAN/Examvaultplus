@@ -74,7 +74,7 @@ class CGPACalculator {
         }
     }
 
-    private static void marksBasedGPA(Scanner sc,String name) {
+  private static void marksBasedGPA(Scanner sc,String name) {
         try {
 
             clearScrn();
@@ -89,28 +89,39 @@ class CGPACalculator {
             };
 
             for (String item : criteria) {
-                System.out.print("Enter marks for " + item + ": ");
-                double val = sc.nextDouble();
-                total += val;
+                while (true) {
+                    System.out.print("Enter marks for " + item + ": ");
+                    try {
+                        double val = sc.nextDouble();
+                        total += val;
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid Input . Please enter a number . ");
+                        sc.nextLine();
+                    }
+                }
             }
-            sc.nextLine();
 
-            if (total < 0 || total > 100) throw new IllegalArgumentException("Total marks must be between 0 and 100.");
+          if (total < 0 || total > 100)
+               throw new IllegalArgumentException("Total marks must be between 0 and 100.");
 
-            String[] info = getGradeInfo(total);
-            String partyPopper = "\uD83C\uDF89";
-            System.out.println("\n" + ANSI_GREEN_BRIGHT + "Result:" + ANSI_RESET);
-            System.out.printf( "\u2728 "+ANSI_BRIGHT_YELLOW+"Congratulations "+ ANSI_RESET +ANSI_RED+name+ ANSI_RESET +ANSI_BRIGHT_CYAN+", you have done a(n)"+ info[2]+ " result.%n "+ ANSI_RESET +partyPopper);
+                 String[] info = getGradeInfo(total);
+                    String partyPopper = "\uD83C\uDF89";
+                    System.out.println("\n" + ANSI_GREEN_BRIGHT + "Result:" + ANSI_RESET);
+                    System.out.printf("\u2728 " + ANSI_BRIGHT_YELLOW + "Congratulations " + ANSI_RESET + ANSI_RED + name + ANSI_RESET + ANSI_BRIGHT_CYAN + ", you have done a(n)" + info[2] + " result.%n " + ANSI_RESET + partyPopper);
 
-            System.out.printf( ANSI_PURPLE_BRIGHT+" CGPA: %.2f | Grade: %s | Grade Point: %s |%n", Double.parseDouble(info[1]), info[0], info[1]);
+                    System.out.printf(ANSI_PURPLE_BRIGHT + " CGPA: %.2f | Grade: %s | Grade Point: %s |%n", Double.parseDouble(info[1]), info[0], info[1]);
 
 
-        } catch (Exception e) {
+
+        }
+        catch (Exception e) {
             sc.nextLine();
             pause(sc, "Error: " + e.getMessage());
         }
         pause(sc, null);
     }
+
 
     private static void subjectBasedCGPA(Scanner sc, String name) {
         clearScrn();
