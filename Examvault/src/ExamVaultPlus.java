@@ -78,6 +78,7 @@ public class ExamVaultPlus {
                     case 1 -> registrationMenu(scanner);
                     case 2 -> loginMenu(scanner);
                     case 3 -> {
+                         System.out.println(ANSI_GREEN_BRIGHT+"Thanks For Using"+ANSI_RESET+ANSI_BRIGHT_YELLOW +" ExamVault+"+ANSI_RESET);
                         printMessage("Exiting program. Goodbye!");
                         return;
                     }
