@@ -55,9 +55,9 @@ public class Student extends User {
 //        }
 //        return true;
 //    }
-public Student(String username, String password) {
+/*public Student(String username, String password) {
     super(username, password);
-}
+}*/
     public static Student checkLogin(String id, String password) {
         id = id.trim();
         password = password.trim();
