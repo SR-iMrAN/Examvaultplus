@@ -301,7 +301,7 @@ catch(InputMismatchException e)
             }
         }catch (InputMismatchException e) {
             scanner.nextLine();
-            pause(scanner, "Invalid Input. Please Enter number (1-4).");
+            pause(scanner, "Invalid Input. Please Enter number .");
         }
     }
 
