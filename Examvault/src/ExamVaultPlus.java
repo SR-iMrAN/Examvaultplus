@@ -212,6 +212,7 @@ public class ExamVaultPlus {
             System.out.println(ANSI_GREEN_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
             System.out.print("\nEnter choice: ");
 
+            try{
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -230,8 +231,15 @@ public class ExamVaultPlus {
                     pause(scanner, null);
                     return;
                 }
-                default -> pause(scanner, "Invalid choice. Please Enter number(1-5).");
             }
+        }
+            catch (InputMismatchException e) {
+                {
+                    scanner.nextLine();
+                    pause(scanner,"Invalid Input.Please Enter number(1-5).");
+                }
+                }
+
         }
     }
 
@@ -243,38 +251,45 @@ public class ExamVaultPlus {
         }
         SubjectManager.listSubjects();
         System.out.print("Select subject by number: ");
-        int subChoice = scanner.nextInt();
-        scanner.nextLine();
 
-        if (!SubjectManager.isValidSubject(subChoice)) {
-            pause(scanner, "Invalid Subject choice.");
-            return;
-        }
-
-        String subject = SubjectManager.getSubject(subChoice);
-
-        while (true) {
-            clearScreen();
-            clrscr();
-            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Choose Question Type ==============================" + ANSI_RESET);
-            System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. MCQ");
-            System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. CQ (Coming soon)");
-            System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      3. MCQ + CQ (Coming soon)");
-            System.out.println(ANSI_RED + "                                                                                      4. Return");
-            System.out.println(ANSI_PURPLE_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
-            System.out.print("Enter choice: ");
-
-            int qChoice = scanner.nextInt();
+        try {
+            int subChoice = scanner.nextInt();
             scanner.nextLine();
 
-            if (qChoice == 4) break;
-
-            switch (qChoice) {
-                case 1 -> Teacher.addMCQQuestion(subject, scanner);
-                case 2 -> printMessage("CQ feature coming soon.");
-                case 3 -> printMessage("MCQ + CQ feature coming soon.");
-                default -> printMessage("Invalid choice.");
+            if (!SubjectManager.isValidSubject(subChoice)) {
+                pause(scanner, "Invalid Subject choice.");
+                return;
             }
+
+            String subject = SubjectManager.getSubject(subChoice);
+
+            while (true) {
+                clearScreen();
+                clrscr();
+                System.out.println(ANSI_PURPLE_BRIGHT + "                                                        " + ANSI_BOLD + "============================== Choose Question Type ==============================" + ANSI_RESET);
+                System.out.println(ANSI_BRIGHT_YELLOW + "                                                                                      1. MCQ");
+                System.out.println(ANSI_BRIGHT_CYAN + "                                                                                      2. CQ (Coming soon)");
+                System.out.println(ANSI_GREEN_BRIGHT + "                                                                                      3. MCQ + CQ (Coming soon)");
+                System.out.println(ANSI_RED + "                                                                                      4. Return");
+                System.out.println(ANSI_PURPLE_BRIGHT + "                                                        ======================================================================" + ANSI_RESET);
+                System.out.print("Enter choice: ");
+
+
+                int qChoice = scanner.nextInt();
+                scanner.nextLine();
+
+                if (qChoice == 4) break;
+
+                switch (qChoice) {
+                    case 1 -> Teacher.addMCQQuestion(subject, scanner);
+                    case 2 -> printMessage("CQ feature coming soon.");
+                    case 3 -> printMessage("MCQ + CQ feature coming soon.");
+                    default -> printMessage("Invalid choice.");
+                }
+            }
+        }catch (InputMismatchException e) {
+            scanner.nextLine();
+            pause(scanner, "Invalid Input. Please Enter number (1-4).");
         }
     }
 
