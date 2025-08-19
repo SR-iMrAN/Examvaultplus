@@ -164,9 +164,7 @@ Definition: Class-level variables and methods that are shared across all instanc
 
 Example:
 
-java
-Copy
-Edit
+
 static ArrayList<Student> students = new ArrayList<>();
 public static void loadStudents() { ... }
 Explanation: All Student objects share the same students list.
