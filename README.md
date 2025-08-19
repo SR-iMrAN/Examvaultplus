@@ -50,7 +50,7 @@
 ---
 
 ## Folder & File Structure
-
+```text
 ExamVaultPlus/
 │
 ├── data/
