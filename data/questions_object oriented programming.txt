@@ -1,0 +1,3 @@
+What is Java ?;language,game,Jani na,Country;language
+Which planet is known as the Red Planet ?;Earth,Mars,Jupiter,Venus;Mars
+What is 12 × 8 ?;96,108,88,104;96
