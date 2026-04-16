@@ -23,18 +23,23 @@ public class QuestionRepository {
             try (Connection conn = OracleDatabase.getConnection();
                  PreparedStatement ps = conn.prepareStatement(
                      "SELECT q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID, " +
-                     "LISTAGG(o.OPTION_TEXT, ',') WITHIN GROUP (ORDER BY o.OPTION_LABEL) as OPTION_LIST " +
-                     "FROM QUESTIONS q LEFT JOIN OPTIONS o ON q.QUESTION_ID = o.QUESTION_ID " +
+                     "LISTAGG(o.OPTION_TEXT, ',') WITHIN GROUP (ORDER BY o.OPTION_LABEL) as OPTION_LIST, " +
+                     "co.OPTION_TEXT as CORRECT_OPTION_TEXT " +
+                     "FROM QUESTIONS q " +
+                     "LEFT JOIN OPTIONS o ON q.QUESTION_ID = o.QUESTION_ID " +
+                     "LEFT JOIN OPTIONS co ON q.CORRECT_OPTION_ID = co.OPTION_ID " +
                      "WHERE q.SUBJECT_ID = (SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?) " +
-                     "GROUP BY q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID")) {
+                     "GROUP BY q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID, co.OPTION_TEXT")) {
                 ps.setString(1, subject);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        String[] options = rs.getString("OPTION_LIST").split(",");
+                        String[] options = rs.getString("OPTION_LIST") != null ? 
+                            rs.getString("OPTION_LIST").split(",") : new String[]{};
+                        String correctOptionText = rs.getString("CORRECT_OPTION_TEXT");
                         questions.add(new QuestionModel(
                                 rs.getString("QUESTION_TEXT"),
                                 options,
-                                rs.getString("CORRECT_OPTION_ID")));
+                                correctOptionText != null ? correctOptionText.trim() : ""));
                     }
                     if (!questions.isEmpty()) return questions;
                 }

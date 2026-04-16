@@ -16,3 +16,18 @@
 2,ok,1,1
 11111,Database Systems,0,7
 Sifatur Rahman Imran,Database Systems,0,7
+Md Hasan Al Tarek Palash,Database Systems,0,7
+Ratul Hasan Rafi,Database Systems,0,7
+Ratul Hasan Rafi,Chemistry,0,3
+Md Abdullah AL Noman,Physics,1,5
+Md Abdullah AL Noman,Mathematics,4,5
+Sifatur Rahman Imran,Database Systems,5,7
+Sifatur Rahman Imran,Mathematics,4,5
+Abu Suffian Hemel,Physics,3,5
+Ratul Hasan Rafi,Physics,3,5
+PALASH HASAN RAFI,Mathematics,4,5
+PALASH HASAN RAFI,Database Systems,6,7
+11111,Mathematics,4,5
+11111,Physics,4,5
+11111,Mathematics,5,5
+11111,Mathematics,5,5

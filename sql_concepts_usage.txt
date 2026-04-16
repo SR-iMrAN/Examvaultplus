@@ -1,0 +1,73 @@
+# SQL Concepts Usage in ExamVaultPlus Project
+
+This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX application.
+
+## 1. Basics of DBMS (Database Management System)
+- **Usage**: The entire application uses Oracle Database 23ai as the backend DBMS
+- **Files**: All repository classes in `src/repositories/` (StudentRepository.java, TeacherRepository.java, etc.)
+- **Description**: Handles data persistence, retrieval, and management for students, teachers, subjects, questions, quizzes, and results
+
+## 2. ERD (Entity-Relationship Diagram) & Schema Design
+- **Usage**: Database schema with normalized tables and relationships
+- **Files**: 
+  - Table creation scripts in user query context
+  - Repository classes that implement the schema relationships
+- **Tables Involved**:
+  - USERS (central user table)
+  - STUDENTS, TEACHERS (inherit from USERS)
+  - SUBJECTS, QUESTIONS, OPTIONS (subject-question-option hierarchy)
+  - QUIZZES, QUIZ_ANSWERS, RESULTS (quiz tracking)
+  - CGPA_RECORDS, CGPA_SUBJECTS (CGPA calculations)
+
+## 3. SQL Queries (Without Join) & Sub-Queries
+- **Usage**: Basic SELECT, INSERT, UPDATE, DELETE operations
+- **Files**:
+  - `src/repositories/SubjectRepository.java` - Basic subject queries
+  - `src/repositories/QuestionRepository.java` - Question loading queries
+  - Simple queries in other repositories for single-table operations
+- **Examples**:
+  - SELECT SUBJECT_NAME FROM SUBJECTS
+  - INSERT INTO SUBJECTS VALUES (...)
+
+## 4. SQL Joins
+- **Usage**: Complex queries combining multiple tables
+- **Files**:
+  - `src/repositories/StudentRepository.java` - JOIN USERS and STUDENTS
+  - `src/repositories/TeacherRepository.java` - JOIN USERS and TEACHERS
+  - `src/repositories/ResultRepository.java` - JOIN RESULTS with SUBJECTS
+  - `src/repositories/QuestionRepository.java` - JOIN QUESTIONS with OPTIONS
+- **Examples**:
+  - SELECT s.STUDENT_ID, u.NAME FROM STUDENTS s JOIN USERS u ON s.USER_ID = u.USER_ID
+  - SELECT r.*, subj.SUBJECT_NAME FROM RESULTS r JOIN SUBJECTS subj ON r.SUBJECT_ID = subj.SUBJECT_ID
+
+## 5. Normalization up to BCNF using Functional Dependencies
+- **Usage**: Database schema follows normalization principles
+- **Files**: Table creation scripts and repository implementations
+- **Functional Dependencies**:
+  - STUDENT_ID → USER_ID (STUDENTS table)
+  - USER_ID → NAME, CONTACT, PASSWORD, ROLE (USERS table)
+  - QUESTION_ID → SUBJECT_ID, QUESTION_TEXT (QUESTIONS table)
+  - OPTION_ID → QUESTION_ID, OPTION_TEXT (OPTIONS table)
+  - RESULT_ID → STUDENT_ID, SUBJECT_ID, QUIZ_ID (RESULTS table)
+- **BCNF Compliance**: Tables are in BCNF with proper foreign key constraints
+
+## 6. Views, Triggers, Integrity Constraints, Roles
+- **Usage**: Database-level constraints and automation
+- **Files**: SQL scripts in user context (triggers and constraints)
+- **Examples**:
+  - Foreign Key Constraints: REFERENCES clauses in table definitions
+  - Check Constraints: ROLE IN ('STUDENT', 'TEACHER')
+  - Triggers: Auto-generated constraint names like SYS_C003529375
+  - Roles: USER table has ROLE column for access control
+
+## 7. Functions and Procedures
+- **Usage**: Database stored procedures for complex operations
+- **Files**: SQL procedure definitions in user context
+- **Description**: Custom procedures for advanced database operations (though not directly called in Java code)
+
+## Additional SQL Concepts Used:
+- **Indexes**: CREATE INDEX statements for performance
+- **Sequences/Auto-increment**: ID generation using System.nanoTime() in Java code
+- **Transactions**: Implicit transactions in repository save methods
+- **Data Types**: VARCHAR2, NUMBER, DATE in Oracle
+- **Constraints**: PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK

@@ -1,8 +1,5 @@
 package repositories;
 
-import models.StudentModel;
-import utils.OracleDatabase;
-
 import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import models.StudentModel;
+import utils.OracleDatabase;
 
 public class StudentRepository {
     private static final String FILE = "data/students.txt";
@@ -60,11 +59,13 @@ public class StudentRepository {
                 ps.setString(2, password.trim());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return new StudentModel(
-                                rs.getString("STUDENT_ID"),
+                        StudentModel student = new StudentModel(
                                 rs.getString("NAME"),
+                                rs.getString("STUDENT_ID"),
                                 rs.getString("CONTACT"),
                                 rs.getString("PASSWORD"));
+                        System.out.println("[DEBUG] Student login successful: ID=" + student.getUsername() + ", Name=" + student.getName());
+                        return student;
                     }
                 }
             } catch (SQLException e) {
