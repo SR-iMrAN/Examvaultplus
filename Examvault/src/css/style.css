@@ -1,0 +1,207 @@
+/* Futuristic Cyberpunk Theme for ExamVaultPlus - Minimalist Glassmorphism with Neon Accents */
+
+/* Root & Background */
+.root-cyber {
+    -fx-font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: radial-gradient(radius 100%, #0f0f23 0%, #1a1a3e 50%, #0a0a15 100%);
+    -fx-background-radius: 20;
+}
+
+/* Glass Cards & Panels */
+.glass-card, .glass-panel {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(255,255,255,0.1), 10, 0.0, 0, 5);
+    -fx-border-color: rgba(255,255,255,0.15);
+    -fx-border-width: 1;
+    -fx-border-radius: 20;
+}
+
+.glass-panel:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.5), 15, 0.0, 0, 8);
+    -fx-background-color: rgba(255,255,255,0.12);
+}
+
+/* Header Cyber */
+.cyber-header {
+    -fx-background-color: linear-gradient(to right, rgba(26,26,62,0.9), rgba(10,15,35,0.9));
+    -fx-border-color: rgba(0,212,255,0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.2), 8, 0.0, 0, 2);
+}
+
+/* Neon Buttons */
+.neon-button {
+    -fx-background-color: linear-gradient(to bottom, #00d4ff, #0099cc);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 15;
+    -fx-padding: 12 24 12 24;
+    -fx-min-height: 48;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.4), 8, 0.3, 0, 2);
+}
+
+.neon-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #00e6ff, #00b8e6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, #00d4ff, 20, 0.5, 0, 0);
+}
+
+.neon-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Success & Error Variants */
+.neon-success {
+    -fx-background-color: linear-gradient(to bottom, #00ff88, #00cc66);
+}
+
+.neon-success:hover {
+    -fx-background-color: linear-gradient(to bottom, #33ff99, #00e680);
+}
+
+.neon-error {
+    -fx-background-color: linear-gradient(to bottom, #ff4757, #ff3742);
+}
+
+.neon-error:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff5f6d, #ff4d52);
+}
+
+/* Forms */
+.glass-form {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(0,212,255,0.2);
+    -fx-padding: 24;
+}
+
+.text-field, .password-field, .text-area, .combo-box {
+    -fx-background-color: rgba(255,255,255,0.12);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.6);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-padding: 12 16;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.3), 4, 0.0, 0, 1);
+}
+
+.text-field:focused, .password-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: #00d4ff;
+    -fx-effect: dropshadow(gaussian, #00d4ff, 10, 0.3, 0, 0);
+}
+
+/* Labels */
+.label-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: linear-gradient(to right, #00d4ff, #ff008c);
+    -fx-effect: dropshadow(one-pass-box, rgba(0,212,255,0.5), 2, 0.0, 0, 1);
+}
+
+.label-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: rgba(255,255,255,0.8);
+}
+
+.label-welcome {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(one-pass-box, rgba(255,255,255,0.3), 1, 0.0, 0, 1);
+}
+
+/* Tabs Minimal */
+.minimal-tab-pane .tab-header-area {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 20 20 0 0;
+}
+
+.minimal-tab-pane .tab {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-background-radius: 15 15 0 0;
+    -fx-text-fill: rgba(255,255,255,0.8);
+    -fx-font-weight: bold;
+    -fx-padding: 12 24;
+}
+
+.minimal-tab-pane .tab:selected {
+    -fx-background-color: linear-gradient(to bottom, rgba(0,212,255,0.2), rgba(255,0,140,0.2));
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.4), 10, 0.0, 0, 2);
+}
+
+/* Futuristic Scrollbar */
+.scroll-futuristic .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.scroll-futuristic .scroll-bar .thumb {
+    -fx-background-color: rgba(0,212,255,0.4);
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,212,255,0.3), 4, 0.0, 0, 1);
+}
+
+.scroll-futuristic .scroll-bar .thumb:hover {
+    -fx-background-color: #00d4ff;
+    -fx-effect: dropshadow(gaussian, #00d4ff, 8, 0.5, 0, 0);
+}
+
+.scroll-futuristic .scroll-bar:vertical .track {
+    -fx-background-color: rgba(255,255,255,0.02);
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+/* Glass List Items */
+.list-item-glass {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 12;
+    -fx-padding: 12 16;
+    -fx-border-radius: 12;
+    -fx-border-color: rgba(255,255,255,0.1);
+    -fx-border-width: 1;
+    -fx-margin: 6;
+}
+
+.list-item-glass:hover {
+    -fx-background-color: rgba(0,212,255,0.1);
+    -fx-border-color: #00d4ff;
+    -fx-effect: dropshadow(gaussian, rgba(0,212,255,0.3), 8, 0.2, 0, 2);
+}
+
+/* Message Labels */
+.msg-success {
+    -fx-text-fill: #00ff88;
+    -fx-font-weight: bold;
+    -fx-padding: 8 12;
+    -fx-background-color: rgba(0,255,136,0.1);
+    -fx-background-radius: 8;
+}
+
+.msg-error {
+    -fx-text-fill: #ff4757;
+    -fx-font-weight: bold;
+    -fx-padding: 8 12;
+    -fx-background-color: rgba(255,71,87,0.1);
+    -fx-background-radius: 8;
+}
+
+/* Animations - JavaFX supports basic transitions */
+/* The CSS animation syntax used here is not supported by JavaFX, so it is removed. */
+
+/* Responsive Typography */
+.text-small { -fx-font-size: 12px; }
+.text-medium { -fx-font-size: 14px; }
+.text-large { -fx-font-size: 18px; }

@@ -1,0 +1,409 @@
+src\gui\CalculatorView.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\CalculatorView.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\CalculatorView.java:5: error: package javafx.scene does not exist
+import javafx.scene.Scene;
+                   ^
+src\gui\CalculatorView.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\CalculatorView.java:9: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\CalculatorView.java:10: error: package javafx.stage does not exist
+import javafx.stage.Stage;
+                   ^
+src\gui\CalculatorView.java:13: error: cannot find symbol
+    private static Stage calculatorStage;
+                   ^
+  symbol:   class Stage
+  location: class CalculatorView
+src\gui\CalculatorView.java:14: error: cannot find symbol
+    private TextArea displayArea;
+            ^
+  symbol:   class TextArea
+  location: class CalculatorView
+src\gui\CalculatorView.java:31: error: cannot find symbol
+    private static Scene createCalculatorScene() {
+                   ^
+  symbol:   class Scene
+  location: class CalculatorView
+src\gui\CalculatorView.java:75: error: cannot find symbol
+    private static Button createCalculatorButton(String text, TextArea display) {
+                                                              ^
+  symbol:   class TextArea
+  location: class CalculatorView
+src\gui\CalculatorView.java:75: error: cannot find symbol
+    private static Button createCalculatorButton(String text, TextArea display) {
+                   ^
+  symbol:   class Button
+  location: class CalculatorView
+src\gui\CalculatorView.java:102: error: cannot find symbol
+    private static void handleCalculatorButton(String text, TextArea display) {
+                                                            ^
+  symbol:   class TextArea
+  location: class CalculatorView
+src\gui\CalculatorView.java:6: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\CalculatorView.java:7: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\CGPACalculatorView.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\CGPACalculatorView.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\CGPACalculatorView.java:5: error: package javafx.scene does not exist
+import javafx.scene.Scene;
+                   ^
+src\gui\CGPACalculatorView.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\CGPACalculatorView.java:9: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\CGPACalculatorView.java:10: error: package javafx.stage does not exist
+import javafx.stage.Stage;
+                   ^
+src\gui\CGPACalculatorView.java:13: error: cannot find symbol
+    private static Stage cgpaStage;
+                   ^
+  symbol:   class Stage
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:30: error: cannot find symbol
+    private static Scene createCGPAScene() {
+                   ^
+  symbol:   class Scene
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:65: error: cannot find symbol
+    private static VBox createGradeCalculator() {
+                   ^
+  symbol:   class VBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:163: error: cannot find symbol
+    private static HBox createCourseItem(String name, double credits, String grade, VBox parent) {
+                                                                                    ^
+  symbol:   class VBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:163: error: cannot find symbol
+    private static HBox createCourseItem(String name, double credits, String grade, VBox parent) {
+                   ^
+  symbol:   class HBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:185: error: cannot find symbol
+    private static VBox createScoreCalculator() {
+                   ^
+  symbol:   class VBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:276: error: cannot find symbol
+    private static HBox createScoreItem(String name, double score, VBox parent) {
+                                                                   ^
+  symbol:   class VBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:276: error: cannot find symbol
+    private static HBox createScoreItem(String name, double score, VBox parent) {
+                   ^
+  symbol:   class HBox
+  location: class CGPACalculatorView
+src\gui\CGPACalculatorView.java:6: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\CGPACalculatorView.java:7: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\LoginView.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\LoginView.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\LoginView.java:7: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\LoginView.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\SceneManager.java:3: error: package javafx.scene does not exist
+import javafx.scene.Scene;
+                   ^
+src\gui\SceneManager.java:4: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.BorderPane;
+                          ^
+src\gui\SceneManager.java:5: error: package javafx.stage does not exist
+import javafx.stage.Stage;
+                   ^
+src\gui\LoginView.java:14: error: cannot find symbol
+    private VBox root;
+            ^
+  symbol:   class VBox
+  location: class LoginView
+src\gui\LoginView.java:15: error: cannot find symbol
+    private TabPane tabPane;
+            ^
+  symbol:   class TabPane
+  location: class LoginView
+src\gui\LoginView.java:50: error: cannot find symbol
+    private VBox createHeader() {
+            ^
+  symbol:   class VBox
+  location: class LoginView
+src\gui\LoginView.java:66: error: cannot find symbol
+    private VBox createLoginForm() {
+            ^
+  symbol:   class VBox
+  location: class LoginView
+src\gui\LoginView.java:134: error: cannot find symbol
+    private VBox createRegisterForm() {
+            ^
+  symbol:   class VBox
+  location: class LoginView
+src\gui\LoginView.java:238: error: cannot find symbol
+    public VBox getView() {
+           ^
+  symbol:   class VBox
+  location: class LoginView
+src\gui\SceneManager.java:9: error: cannot find symbol
+    private Stage primaryStage;
+            ^
+  symbol:   class Stage
+  location: class SceneManager
+src\gui\SceneManager.java:10: error: cannot find symbol
+    private Scene scene;
+            ^
+  symbol:   class Scene
+  location: class SceneManager
+src\gui\SceneManager.java:11: error: cannot find symbol
+    private BorderPane root;
+            ^
+  symbol:   class BorderPane
+  location: class SceneManager
+src\gui\SceneManager.java:14: error: cannot find symbol
+    public SceneManager(Stage stage, AuthService authService) {
+                        ^
+  symbol:   class Stage
+  location: class SceneManager
+src\gui\SceneManager.java:37: error: cannot find symbol
+    public Scene getScene() {
+           ^
+  symbol:   class Scene
+  location: class SceneManager
+src\gui\LoginView.java:5: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\LoginView.java:6: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\MainApplication.java:3: error: package javafx.application does not exist
+import javafx.application.Application;
+                         ^
+src\gui\MainApplication.java:4: error: package javafx.scene does not exist
+import javafx.scene.Scene;
+                   ^
+src\gui\MainApplication.java:5: error: package javafx.stage does not exist
+import javafx.stage.Stage;
+                   ^
+src\gui\MainApplication.java:8: error: cannot find symbol
+public class MainApplication extends Application {
+                                     ^
+  symbol: class Application
+src\gui\MainApplication.java:9: error: cannot find symbol
+    private Stage primaryStage;
+            ^
+  symbol:   class Stage
+  location: class MainApplication
+src\gui\MainApplication.java:14: error: cannot find symbol
+    public void start(Stage stage) throws Exception {
+                      ^
+  symbol:   class Stage
+  location: class MainApplication
+src\gui\QuizView.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\QuizView.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\QuizView.java:7: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\QuizView.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\QuizView.java:26: error: cannot find symbol
+    private VBox root;
+            ^
+  symbol:   class VBox
+  location: class QuizView
+src\gui\QuizView.java:68: error: cannot find symbol
+    private HBox createHeader() {
+            ^
+  symbol:   class HBox
+  location: class QuizView
+src\gui\QuizView.java:110: error: cannot find symbol
+    private VBox createQuestionView() {
+            ^
+  symbol:   class VBox
+  location: class QuizView
+src\gui\QuizView.java:233: error: cannot find symbol
+    public VBox getView() {
+           ^
+  symbol:   class VBox
+  location: class QuizView
+src\gui\QuizView.java:5: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\QuizView.java:6: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\StudentDashboard.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\StudentDashboard.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\StudentDashboard.java:7: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\StudentDashboard.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\StudentDashboard.java:21: error: cannot find symbol
+    private VBox root;
+            ^
+  symbol:   class VBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:61: error: cannot find symbol
+    private HBox createHeader() {
+            ^
+  symbol:   class HBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:91: error: cannot find symbol
+    private VBox createQuizView() {
+            ^
+  symbol:   class VBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:123: error: cannot find symbol
+    private HBox createQuizCard(String subject) {
+            ^
+  symbol:   class HBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:156: error: cannot find symbol
+    private VBox createResultsView() {
+            ^
+  symbol:   class VBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:190: error: cannot find symbol
+    private HBox createResultCard(QuizResultModel result) {
+            ^
+  symbol:   class HBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:209: error: cannot find symbol
+    private VBox createToolsView() {
+            ^
+  symbol:   class VBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:230: error: cannot find symbol
+    private HBox createToolCard(String name, String description, String type, String color) {
+            ^
+  symbol:   class HBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:270: error: cannot find symbol
+    private Button createToolButton(String text, String color) {
+            ^
+  symbol:   class Button
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:289: error: cannot find symbol
+    private Button createLogoutButton() {
+            ^
+  symbol:   class Button
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:311: error: cannot find symbol
+    public VBox getView() {
+           ^
+  symbol:   class VBox
+  location: class StudentDashboard
+src\gui\StudentDashboard.java:5: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\StudentDashboard.java:6: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\TeacherDashboard.java:3: error: package javafx.geometry does not exist
+import javafx.geometry.Insets;
+                      ^
+src\gui\TeacherDashboard.java:4: error: package javafx.geometry does not exist
+import javafx.geometry.Pos;
+                      ^
+src\gui\TeacherDashboard.java:7: error: package javafx.scene.text does not exist
+import javafx.scene.text.Font;
+                        ^
+src\gui\TeacherDashboard.java:8: error: package javafx.scene.text does not exist
+import javafx.scene.text.FontWeight;
+                        ^
+src\gui\TeacherDashboard.java:19: error: cannot find symbol
+    private VBox root;
+            ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:55: error: cannot find symbol
+    private HBox createHeader() {
+            ^
+  symbol:   class HBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:83: error: cannot find symbol
+    private VBox createSubjectsView() {
+            ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:157: error: cannot find symbol
+    private VBox createQuestionsView() {
+            ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:261: error: cannot find symbol
+    private VBox createResultsView() {
+            ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:316: error: cannot find symbol
+    private HBox createResultCard(QuizResultModel result) {
+            ^
+  symbol:   class HBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:339: error: cannot find symbol
+    private void updateSubjectsList(VBox parent) {
+                                    ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:343: error: cannot find symbol
+    private Button createPrimaryButton(String text, String color) {
+            ^
+  symbol:   class Button
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:355: error: cannot find symbol
+    private Button createLogoutButton() {
+            ^
+  symbol:   class Button
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:372: error: cannot find symbol
+    public VBox getView() {
+           ^
+  symbol:   class VBox
+  location: class TeacherDashboard
+src\gui\TeacherDashboard.java:5: error: package javafx.scene.control does not exist
+import javafx.scene.control.*;
+                   ^
+src\gui\TeacherDashboard.java:6: error: package javafx.scene.layout does not exist
+import javafx.scene.layout.*;
+                   ^
+src\gui\CalculatorView.java:21: error: cannot find symbol
+            calculatorStage = new Stage();
+                                  ^
+  symbol:   class Stage
+  location: class CalculatorView
+100 errors
+only showing the first 100 errors, of 659 total; use -Xmaxerrs if you would like to see more

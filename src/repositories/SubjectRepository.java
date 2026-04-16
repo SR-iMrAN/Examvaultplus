@@ -1,6 +1,12 @@
 package repositories;
 
+import utils.OracleDatabase;
+
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +22,23 @@ public class SubjectRepository {
         if (!listFile.exists()) {
             try { listFile.createNewFile(); } catch (IOException ignored) {}
         }
+
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT SUBJECT_NAME FROM SUBJECTS ORDER BY SUBJECT_NAME")) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String subject = rs.getString("SUBJECT_NAME");
+                        if (subject != null && !subject.trim().isEmpty()) subjects.add(subject.trim());
+                    }
+                    return;
+                }
+            } catch (SQLException e) {
+                System.out.println("Subject DB load failed: " + e.getMessage());
+            }
+        }
+
         try (BufferedReader br = new BufferedReader(new FileReader(SUBJECT_LIST_FILE))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -30,6 +53,18 @@ public class SubjectRepository {
             if (s.equalsIgnoreCase(subject)) return false;
         }
         subjects.add(subject);
+
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement("INSERT INTO SUBJECTS (SUBJECT_NAME) VALUES (?)")) {
+                ps.setString(1, subject);
+                ps.executeUpdate();
+            } catch (SQLException e) {
+                System.out.println("Subject DB save failed: " + e.getMessage());
+                // Fall back to local file storage below.
+            }
+        }
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(SUBJECT_LIST_FILE, true))) {
             bw.write(subject); bw.newLine();
         } catch (IOException e) { return false; }

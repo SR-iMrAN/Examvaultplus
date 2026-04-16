@@ -1,0 +1,24 @@
+/* Basic styling for ExamVaultPlus GUI */
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+}
+
+.button {
+    -fx-cursor: hand;
+}
+
+.tab-pane .tab-header-area {
+    -fx-background-color: transparent;
+}
+
+.text-area, .text-field, .password-field, .combo-box {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #dfe4ea;
+    -fx-border-width: 1;
+}
+
+.label {
+    -fx-text-fill: #2c3e50;
+}

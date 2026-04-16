@@ -1,0 +1,77 @@
+SQL Query Fixes - Schema Alignment
+===================================
+
+ISSUE:
+The repository code was trying to query STUDENTS and TEACHERS tables directly,
+but your schema splits user credentials into a separate USERS table.
+
+FIXED QUERIES:
+
+1. STUDENT LOAD (StudentRepository.load)
+   =======================================
+   OLD (WRONG):
+     SELECT STUDENT_ID, NAME, CONTACT, PASSWORD FROM STUDENTS
+   
+   NEW (CORRECT):
+     SELECT s.STUDENT_ID, u.NAME, u.CONTACT, u.PASSWORD 
+     FROM STUDENTS s 
+     JOIN USERS u ON s.USER_ID = u.USER_ID
+
+2. STUDENT REGISTER (StudentRepository.register)
+   =======================================
+   OLD (WRONG):
+     INSERT INTO STUDENTS (STUDENT_ID, NAME, CONTACT, PASSWORD) VALUES (...)
+   
+   NEW (CORRECT):
+     Step 1: INSERT INTO USERS (USER_ID, NAME, CONTACT, PASSWORD, ROLE) 
+             VALUES ('U' + student_id, name, contact, password, 'STUDENT')
+     Step 2: INSERT INTO STUDENTS (STUDENT_ID, USER_ID) 
+             VALUES (student_id, 'U' + student_id)
+
+3. TEACHER LOAD (TeacherRepository.load)
+   =======================================
+   OLD (WRONG):
+     SELECT USERNAME, PASSWORD, NAME FROM TEACHERS
+   
+   NEW (CORRECT):
+     SELECT t.TEACHER_ID, u.CONTACT as USERNAME, u.PASSWORD, u.NAME 
+     FROM TEACHERS t 
+     JOIN USERS u ON t.USER_ID = u.USER_ID
+
+4. TEACHER REGISTER (TeacherRepository.register)
+   =======================================
+   OLD (WRONG):
+     INSERT INTO TEACHERS (USERNAME, PASSWORD, NAME) VALUES (...)
+   
+   NEW (CORRECT):
+     Step 1: INSERT INTO USERS (USER_ID, NAME, CONTACT, PASSWORD, ROLE) 
+             VALUES ('U' + contact_id, name, contact, password, 'TEACHER')
+     Step 2: INSERT INTO TEACHERS (TEACHER_ID, USER_ID) 
+             VALUES ('T' + contact_id, 'U' + contact_id)
+
+5. SUBJECT LOAD (SubjectRepository.load)
+   =======================================
+   CORRECT:
+     SELECT SUBJECT_NAME FROM SUBJECTS ORDER BY SUBJECT_NAME
+
+6. QUESTION LOAD (QuestionRepository.loadForSubject)
+   =======================================
+   NEW (ORACLE):
+     SELECT q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID,
+            LISTAGG(o.OPTION_TEXT, ',') WITHIN GROUP (ORDER BY o.OPTION_LABEL) as OPTION_LIST 
+     FROM QUESTIONS q 
+     LEFT JOIN OPTIONS o ON q.QUESTION_ID = o.QUESTION_ID 
+     WHERE q.SUBJECT_ID = (SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?)
+     GROUP BY q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID
+
+7. RESULTS SAVE (ResultRepository.save)
+   =======================================
+   CORRECT:
+     INSERT INTO RESULTS (RESULT_ID, STUDENT_ID, SUBJECT_ID, QUIZ_ID, SCORE, TOTAL_MARKS) 
+     VALUES (?, ?, ?, ?, ?, ?)
+
+KEY POINTS:
+- STUDENTS and TEACHERS only store IDs and foreign keys to USERS
+- Actual user credentials (name, contact, password) live in the USERS table
+- All LOAD operations now JOIN with USERS to get the full user data
+- All INSERT operations now add rows to both USERS and child tables

@@ -1,15 +1,49 @@
 package repositories;
 
 import models.QuestionModel;
+import utils.OracleDatabase;
+
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class QuestionRepository {
     private static final String DATA_DIR = "data/";
 
     public static List<QuestionModel> loadForSubject(String subject) {
         List<QuestionModel> questions = new ArrayList<>();
+        
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID, " +
+                     "LISTAGG(o.OPTION_TEXT, ',') WITHIN GROUP (ORDER BY o.OPTION_LABEL) as OPTION_LIST " +
+                     "FROM QUESTIONS q LEFT JOIN OPTIONS o ON q.QUESTION_ID = o.QUESTION_ID " +
+                     "WHERE q.SUBJECT_ID = (SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?) " +
+                     "GROUP BY q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID")) {
+                ps.setString(1, subject);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String[] options = rs.getString("OPTION_LIST").split(",");
+                        questions.add(new QuestionModel(
+                                rs.getString("QUESTION_TEXT"),
+                                options,
+                                rs.getString("CORRECT_OPTION_ID")));
+                    }
+                    if (!questions.isEmpty()) return questions;
+                }
+            } catch (SQLException e) {
+                System.out.println("Question DB load failed: " + e.getMessage());
+            }
+        }
+        
+        // Fallback to local file
         String fileName = DATA_DIR + "questions_" + subject.toLowerCase() + ".txt";
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;

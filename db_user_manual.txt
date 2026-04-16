@@ -1,0 +1,82 @@
+ExamVaultPlus Database & App User Manual
+========================================
+
+1. Overview
+-----------
+This app can use two storage modes:
+- Oracle database (preferred when available)
+- Local text files under the `data/` folder (fallback)
+
+At startup the app tries to connect to Oracle using the configuration in `src/utils/DatabaseConfig.java`.
+If the connection succeeds, the app reads and writes data from your Oracle schema tables.
+If the connection fails, it continues working with the existing local text files.
+
+2. How startup works
+--------------------
+The startup entrypoint is `src/gui/MainApplication.java`.
+It does these steps:
+1. Calls `OracleDatabase.init()` to try Oracle connectivity.
+2. Creates the local `data/` and `data/subject/` folders if needed.
+3. Loads student, teacher, and subject data via repository classes.
+4. Launches the JavaFX GUI.
+
+3. Oracle configuration
+-----------------------
+The Oracle connection settings are in `src/utils/DatabaseConfig.java`:
+- URL: `jdbc:oracle:thin:@db.freesql.com:1521/23ai_34ui2`
+- USER: `SRI_DIU_23_SCHEMA_9617Q`
+- PASSWORD: currently set to `Sridiu23#`
+
+If you want to override these values without editing the file, use JVM system properties:
+  -DDB_URL=jdbc:oracle:thin:@... -DDB_USER=... -DDB_PASSWORD=...
+
+4. Which tables are used
+------------------------
+The app currently supports these Oracle tables in code:
+- `STUDENTS` for student accounts
+- `TEACHERS` for teacher accounts
+- `SUBJECTS` for subjects
+- `RESULTS` for quiz results
+
+The repository code also still supports local files:
+- `data/students.txt`
+- `data/teachers.txt`
+- `data/subject/subjects.txt`
+- `data/results.txt`
+
+5. Student registration behavior
+--------------------------------
+When you register a new student in the app:
+- the app first checks whether Oracle is available.
+- if Oracle is available, it inserts the new row into the `STUDENTS` table.
+- if the Oracle write fails or the DB is unavailable, it writes the new student to `data/students.txt` instead.
+
+So the answer is:
+- Yes, if the Oracle connection is active when you run `run.bat` and register a new student, the new student should be added to the `STUDENTS` table.
+- If the Oracle DB is not connected at that moment, the student data will be saved locally to the `data/students.txt` file.
+
+6. Running with `run.bat`
+-------------------------
+The `run.bat` script:
+- compiles all Java files into the `out/` folder
+- copies CSS resources
+- launches the JavaFX application
+
+Important: `run.bat` currently uses JavaFX and now expects the Oracle JDBC driver jar at `lib\ojdbc8.jar`.
+To make Oracle work:
+- download `ojdbc8.jar` from Oracle
+- place it in the project `lib` folder
+- run `run.bat` again
+
+If the driver is still missing, the app will print "Oracle JDBC driver not found" and continue using local text files.
+
+7. Troubleshooting
+------------------
+- If the app shows "Oracle database unavailable", check the password and network.
+- If it shows "Oracle JDBC driver not found", add the Oracle driver jar to your classpath.
+- If registration creates only local files, that means Oracle was not available during login.
+
+8. Recommended next step
+------------------------
+If you want full database behavior, make sure the driver jar is available and `src/utils/DatabaseConfig.java` has the correct password.
+Then run `run.bat` again and register a student; it should write into the Oracle `STUDENTS` table.

@@ -15,6 +15,7 @@ set FX_MODS=javafx.controls,javafx.fxml
 set FX_PATH="%JAVAFX%\lib"
 set SRC=src
 set OUT=out
+set ORACLE_JAR=lib\ojdbc8.jar
 
 echo.
 echo  =====================================================
@@ -56,7 +57,7 @@ echo.
 %JAVA% --enable-native-access=javafx.graphics ^
   --module-path %FX_PATH% ^
   --add-modules %FX_MODS% ^
-  -cp "%OUT%" ^
+  -cp "%OUT%;%ORACLE_JAR%" ^
   ExamVaultPlus
 
 endlocal

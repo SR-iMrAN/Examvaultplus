@@ -298,6 +298,7 @@ public class TeacherDashboard {
             qArea.setPromptText("Enter the question here...");
             qArea.setPrefRowCount(3);
             qArea.setWrapText(true);
+            qArea.setStyle("-fx-control-inner-background: #161b22; -fx-text-fill: #e6edf3; -fx-prompt-text-fill: #484f58; -fx-background-color: #161b22; -fx-background-insets: 0;");
 
             Label optionsLbl = new Label("Options (4 choices)");
             optionsLbl.getStyleClass().add("text-secondary");
@@ -310,6 +311,7 @@ public class TeacherDashboard {
                 optLbl.setStyle("-fx-text-fill: #8b949e; -fx-min-width: 20px;");
                 optFields[i] = new TextField();
                 optFields[i].setPromptText("Option " + (char)('A' + i));
+                optFields[i].setStyle("-fx-control-inner-background: #161b22; -fx-text-fill: #e6edf3; -fx-prompt-text-fill: #484f58; -fx-background-color: #161b22; -fx-background-insets: 0;");
                 optGrid.add(optLbl, 0, i);
                 optGrid.add(optFields[i], 1, i);
                 ColumnConstraints cc = new ColumnConstraints();
@@ -321,6 +323,7 @@ public class TeacherDashboard {
             ansLbl.getStyleClass().add("text-secondary");
             TextField ansField = new TextField();
             ansField.setPromptText("Type the exact text of the correct option");
+            ansField.setStyle("-fx-control-inner-background: #161b22; -fx-text-fill: #e6edf3; -fx-prompt-text-fill: #484f58; -fx-background-color: #161b22; -fx-background-insets: 0;");
 
             Label msgLbl = new Label(""); msgLbl.setVisible(false);
 

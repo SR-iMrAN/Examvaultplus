@@ -121,8 +121,45 @@ public class LoginView {
 
         Label passLabel = new Label("Password");
         passLabel.getStyleClass().add("text-secondary");
+        
+        HBox passContainer = new HBox(4);
+        passContainer.setAlignment(Pos.CENTER_LEFT);
         PasswordField passField = new PasswordField();
         passField.setPromptText("Your password (default: Student ID)");
+        passField.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(passField, Priority.ALWAYS);
+        
+        TextField passTextBox = new TextField();
+        passTextBox.setPromptText("Your password (default: Student ID)");
+        passTextBox.setMaxWidth(Double.MAX_VALUE);
+        passTextBox.setVisible(false);
+        passTextBox.setManaged(false);
+        HBox.setHgrow(passTextBox, Priority.ALWAYS);
+        
+        Button eyeButton = new Button("👁");
+        eyeButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px; -fx-background-color: #1c2128; -fx-text-fill: #8b949e; -fx-border-radius: 4px; -fx-cursor: hand;");
+        
+        final boolean[] isPasswordVisible = {false};
+        eyeButton.setOnAction(e -> {
+            isPasswordVisible[0] = !isPasswordVisible[0];
+            if (isPasswordVisible[0]) {
+                passTextBox.setText(passField.getText());
+                passTextBox.setVisible(true);
+                passTextBox.setManaged(true);
+                passField.setVisible(false);
+                passField.setManaged(false);
+                eyeButton.setText("🙈");
+            } else {
+                passField.setText(passTextBox.getText());
+                passField.setVisible(true);
+                passField.setManaged(true);
+                passTextBox.setVisible(false);
+                passTextBox.setManaged(false);
+                eyeButton.setText("👁");
+            }
+        });
+        
+        passContainer.getChildren().addAll(passField, passTextBox, eyeButton);
 
         Label errorLabel = new Label("");
         errorLabel.getStyleClass().add("text-danger");
@@ -133,7 +170,7 @@ public class LoginView {
         loginBtn.setMaxWidth(Double.MAX_VALUE);
         loginBtn.setPadding(new Insets(10, 0, 10, 0));
 
-        loginSection.getChildren().addAll(loginTitle, idLabel, idField, passLabel, passField, errorLabel, loginBtn);
+        loginSection.getChildren().addAll(loginTitle, idLabel, idField, passLabel, passContainer, errorLabel, loginBtn);
 
         // Separator + toggle
         Separator sep = new Separator();
@@ -200,7 +237,7 @@ public class LoginView {
 
         loginBtn.setOnAction(e -> {
             String id = idField.getText().trim();
-            String pass = passField.getText().trim();
+            String pass = isPasswordVisible[0] ? passTextBox.getText().trim() : passField.getText().trim();
             if (id.isEmpty() || pass.isEmpty()) {
                 errorLabel.setText("Please fill in all fields.");
                 errorLabel.setVisible(true);
@@ -258,8 +295,45 @@ public class LoginView {
 
         Label passLabel = new Label("Password");
         passLabel.getStyleClass().add("text-secondary");
+        
+        HBox passContainer = new HBox(4);
+        passContainer.setAlignment(Pos.CENTER_LEFT);
         PasswordField passField = new PasswordField();
         passField.setPromptText("Your password");
+        passField.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(passField, Priority.ALWAYS);
+        
+        TextField passTextBox = new TextField();
+        passTextBox.setPromptText("Your password");
+        passTextBox.setMaxWidth(Double.MAX_VALUE);
+        passTextBox.setVisible(false);
+        passTextBox.setManaged(false);
+        HBox.setHgrow(passTextBox, Priority.ALWAYS);
+        
+        Button eyeButton = new Button("👁");
+        eyeButton.setStyle("-fx-font-size: 14px; -fx-padding: 8px; -fx-background-color: #1c2128; -fx-text-fill: #8b949e; -fx-border-radius: 4px; -fx-cursor: hand;");
+        
+        final boolean[] isPasswordVisible = {false};
+        eyeButton.setOnAction(e -> {
+            isPasswordVisible[0] = !isPasswordVisible[0];
+            if (isPasswordVisible[0]) {
+                passTextBox.setText(passField.getText());
+                passTextBox.setVisible(true);
+                passTextBox.setManaged(true);
+                passField.setVisible(false);
+                passField.setManaged(false);
+                eyeButton.setText("🙈");
+            } else {
+                passField.setText(passTextBox.getText());
+                passField.setVisible(true);
+                passField.setManaged(true);
+                passTextBox.setVisible(false);
+                passTextBox.setManaged(false);
+                eyeButton.setText("👁");
+            }
+        });
+        
+        passContainer.getChildren().addAll(passField, passTextBox, eyeButton);
 
         Label errorLabel = new Label("");
         errorLabel.getStyleClass().add("text-danger");
@@ -270,7 +344,7 @@ public class LoginView {
         loginBtn.setMaxWidth(Double.MAX_VALUE);
         loginBtn.setPadding(new Insets(10, 0, 10, 0));
 
-        loginSection.getChildren().addAll(loginTitle, usernameLabel, usernameField, passLabel, passField, errorLabel, loginBtn);
+        loginSection.getChildren().addAll(loginTitle, usernameLabel, usernameField, passLabel, passContainer, errorLabel, loginBtn);
 
         Separator sep = new Separator();
         sep.setPadding(new Insets(16, 0, 16, 0));
@@ -346,7 +420,7 @@ public class LoginView {
 
         loginBtn.setOnAction(e -> {
             String user = usernameField.getText().trim();
-            String pass = passField.getText().trim();
+            String pass = isPasswordVisible[0] ? passTextBox.getText().trim() : passField.getText().trim();
             if (user.isEmpty() || pass.isEmpty()) {
                 errorLabel.setText("Please fill in all fields.");
                 errorLabel.setVisible(true);
