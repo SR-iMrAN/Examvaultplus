@@ -1,16 +1,20 @@
 package gui;
-
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+
 import models.ResultModel;
 import models.TeacherModel;
 import repositories.QuestionRepository;
 import repositories.ResultRepository;
 import repositories.SubjectRepository;
 
+
 import java.util.List;
+
+// import javax.swing.table.TableColumn;
+// import javax.swing.text.TableView;
 
 public class TeacherDashboard {
 
@@ -191,7 +195,10 @@ public class TeacherDashboard {
         addBtn.setOnAction(e -> {
             String name = subjectField.getText().trim();
             if (name.isEmpty()) { addMsg.setText("Subject name cannot be empty."); addMsg.getStyleClass().setAll("text-danger"); addMsg.setVisible(true); return; }
-            boolean added = SubjectRepository.addSubject(name);
+            String teacherId = teacher.getTeacherId();  // ⚠️ must exist
+// String subjectId = "SUB" + System.currentTimeMillis();
+
+boolean added = SubjectRepository.addSubject(name,  teacherId);
             if (added) {
                 addMsg.setText("✓ Subject \"" + name + "\" added successfully.");
                 addMsg.getStyleClass().setAll("text-success");

@@ -26,7 +26,8 @@ public class TeacherRepository {
                         teachers.add(new TeacherModel(
                                 rs.getString("USERNAME"),
                                 rs.getString("PASSWORD"),
-                                rs.getString("NAME")));
+                                rs.getString("NAME"),
+                                    rs.getString("TEACHER_ID")));
                     }
                     return;
                 }
@@ -40,8 +41,14 @@ public class TeacherRepository {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    teachers.add(new TeacherModel(
-                            parts[2].trim(), parts[3].trim(), parts[0].trim()));
+                 String teacherId = "T" + parts[2].replaceAll("[^0-9]", "");
+
+teachers.add(new TeacherModel(
+    parts[2].trim(),
+    parts[3].trim(),
+    parts[0].trim(),
+    teacherId
+));
                 }
             }
         } catch (IOException e) {
@@ -61,7 +68,8 @@ public class TeacherRepository {
                         return new TeacherModel(
                                 rs.getString("USERNAME"),
                                 rs.getString("PASSWORD"),
-                                rs.getString("NAME"));
+                                rs.getString("NAME"),
+                                 rs.getString("TEACHER_ID"));
                     }
                 }
             } catch (SQLException e) {
@@ -86,7 +94,9 @@ public class TeacherRepository {
 
     public static boolean register(String name, String id, String contact, String password) {
         if (usernameExists(contact)) return false;
-        TeacherModel t = new TeacherModel(contact, password, name);
+       String teacherId = "T" + contact.replaceAll("[^0-9]", "");
+
+TeacherModel t = new TeacherModel(contact, password, name, teacherId);
         teachers.add(t);
         if (OracleDatabase.isAvailable()) {
             try (Connection conn = OracleDatabase.getConnection()) {
@@ -101,7 +111,7 @@ public class TeacherRepository {
                     ps1.executeUpdate();
                 }
                 // Then insert into TEACHERS
-                String teacherId = "T" + contact.replaceAll("[^0-9]", "");  // Generate teacher_id
+              
                 try (PreparedStatement ps2 = conn.prepareStatement(
                         "INSERT INTO TEACHERS (TEACHER_ID, USER_ID) VALUES (?, ?)")) {
                     ps2.setString(1, teacherId);
