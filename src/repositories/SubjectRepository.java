@@ -133,4 +133,32 @@ public class SubjectRepository {
     public static List<String> getAll() {
         return subjects;
     }
+
+    // ===== GET SUBJECTS BY TEACHER =====
+    public static List<String> getByTeacher(String teacherId) {
+        List<String> teacherSubjects = new ArrayList<>();
+        
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                         "SELECT SUBJECT_NAME FROM SUBJECTS WHERE TEACHER_ID = ? ORDER BY SUBJECT_NAME")) {
+                
+                ps.setString(1, teacherId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String subject = rs.getString("SUBJECT_NAME");
+                        if (subject != null && !subject.trim().isEmpty()) {
+                            teacherSubjects.add(subject.trim());
+                        }
+                    }
+                }
+                return teacherSubjects;
+                
+            } catch (SQLException e) {
+                System.out.println("Teacher subjects DB query failed: " + e.getMessage());
+            }
+        }
+        
+        return teacherSubjects;
+    }
 }

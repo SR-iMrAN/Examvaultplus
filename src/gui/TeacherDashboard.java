@@ -4,6 +4,7 @@ import javafx.scene.layout.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import models.QuestionModel;
 import models.ResultModel;
 import models.TeacherModel;
 import repositories.QuestionRepository;
@@ -112,8 +113,8 @@ public class TeacherDashboard {
         sub.getStyleClass().add("text-secondary");
         VBox header = new VBox(6, heading, sub);
 
-        List<String> subjects = SubjectRepository.getAll();
-        List<ResultModel> allResults = ResultRepository.getAll();
+        List<String> subjects = SubjectRepository.getByTeacher(teacher.getTeacherId());
+        List<ResultModel> allResults = ResultRepository.getByTeacher(teacher.getTeacherId());
 
         HBox statsRow = new HBox(16);
         statsRow.getChildren().addAll(
@@ -214,12 +215,12 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
         addRow.getChildren().addAll(subjectField, addBtn);
         addCard.getChildren().addAll(addTitle, addRow, addMsg);
 
-        // Subject list
-        List<String> subjects = SubjectRepository.getAll();
+        // Subject list - only show teacher's assigned subjects
+        List<String> subjects = SubjectRepository.getByTeacher(teacher.getTeacherId());
 
         VBox listCard = new VBox(10);
         listCard.getStyleClass().add("card");
-        Label listTitle = new Label("All Subjects  ·  " + subjects.size() + " total");
+        Label listTitle = new Label("Your Subjects  ·  " + subjects.size() + " total");
         listTitle.getStyleClass().add("heading-md");
         listCard.getChildren().add(listTitle);
 
@@ -268,7 +269,7 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
         Label sub = new Label("Add MCQ questions to subjects");
         sub.getStyleClass().add("text-secondary");
 
-        List<String> subjects = SubjectRepository.getAll();
+        List<String> subjects = SubjectRepository.getByTeacher(teacher.getTeacherId());
 
         if (subjects.isEmpty()) {
             VBox empty = new VBox(12);
@@ -298,6 +299,77 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
             subjectCombo.getItems().addAll(subjects);
             subjectCombo.setValue(subjects.get(0));
             subjectCombo.setMaxWidth(Double.MAX_VALUE);
+
+            Label deleteMsgLbl = new Label("");
+            deleteMsgLbl.setVisible(false);
+
+            Label existingTitle = new Label("Existing Questions");
+            existingTitle.getStyleClass().add("heading-md");
+            TableView<QuestionModel> questionTable = new TableView<>();
+            questionTable.setPrefHeight(260);
+            questionTable.getStyleClass().add("table-view");
+
+            TableColumn<QuestionModel, String> questionCol = new TableColumn<>("Question");
+            questionCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getQuestionText()));
+            questionCol.setPrefWidth(360);
+
+            TableColumn<QuestionModel, String> answerCol = new TableColumn<>("Answer");
+            answerCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getAnswer()));
+            answerCol.setPrefWidth(180);
+
+            final Runnable[] refreshQuestions = new Runnable[1];
+
+            TableColumn<QuestionModel, Void> actionCol = new TableColumn<>("Action");
+            actionCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+                private final Button deleteBtn = new Button("Delete");
+                {
+                    deleteBtn.getStyleClass().add("btn-danger");
+                    deleteBtn.setOnAction(evt -> {
+                        QuestionModel item = getTableView().getItems().get(getIndex());
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                                "Delete this question permanently?", ButtonType.YES, ButtonType.NO);
+                        alert.setTitle("Confirm Delete");
+                        alert.setHeaderText("Are you sure?");
+                        alert.showAndWait().ifPresent(type -> {
+                            if (type == ButtonType.YES) {
+                                boolean deleted = QuestionRepository.deleteQuestion(item.getId());
+                                if (deleted) {
+                                    showMsg(deleteMsgLbl, "✓ Question deleted successfully.", true);
+                                    refreshQuestions[0].run();
+                                } else {
+                                    showMsg(deleteMsgLbl, "Could not delete question. Try again.", false);
+                                }
+                            }
+                        });
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || getTableRow() == null || getTableRow().getItem() == null || getTableRow().getItem().getId() == null) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(deleteBtn);
+                    }
+                }
+            });
+            actionCol.setPrefWidth(120);
+
+            questionTable.getColumns().addAll(questionCol, answerCol, actionCol);
+            questionTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+            refreshQuestions[0] = () -> {
+                questionTable.getItems().clear();
+                List<QuestionModel> loaded = QuestionRepository.loadForSubject(subjectCombo.getValue());
+                questionTable.getItems().addAll(loaded);
+            };
+            refreshQuestions[0].run();
+            subjectCombo.setOnAction(e -> refreshQuestions[0].run());
+
+            VBox questionListCard = new VBox(12, existingTitle, questionTable, deleteMsgLbl);
+            questionListCard.getStyleClass().add("card");
+            questionListCard.setMaxWidth(980);
 
             Label qLbl = new Label("Question Text");
             qLbl.getStyleClass().add("text-secondary");
@@ -398,7 +470,7 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
             formCard.getChildren().addAll(formTitle, subjectLbl, subjectCombo, qLbl, qArea,
                     optionsLbl, optGrid, ansLbl, ansField, msgLbl, addBtn);
 
-            content.getChildren().addAll(new VBox(4, heading, sub), formCard, importCard);
+            content.getChildren().addAll(new VBox(4, heading, sub), questionListCard, formCard, importCard);
         }
 
         scroll.setContent(content);
@@ -420,7 +492,7 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
         Label sub = new Label("View and filter student quiz results");
         sub.getStyleClass().add("text-secondary");
 
-        List<String> subjects = SubjectRepository.getAll();
+        List<String> subjects = SubjectRepository.getByTeacher(teacher.getTeacherId());
 
         // Filter row
         HBox filterRow = new HBox(12);
@@ -428,9 +500,9 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
         Label filterLbl = new Label("Filter by subject:");
         filterLbl.getStyleClass().add("text-secondary");
         ComboBox<String> filterCombo = new ComboBox<>();
-        filterCombo.getItems().add("All Subjects");
+        filterCombo.getItems().add("All Assigned Subjects");
         filterCombo.getItems().addAll(subjects);
-        filterCombo.setValue("All Subjects");
+        filterCombo.setValue("All Assigned Subjects");
 
         filterRow.getChildren().addAll(filterLbl, filterCombo);
 
@@ -473,8 +545,8 @@ boolean added = SubjectRepository.addSubject(name,  teacherId);
         Runnable refreshTable = () -> {
             table.getItems().clear();
             String filter = filterCombo.getValue();
-            List<ResultModel> results = "All Subjects".equals(filter)
-                    ? ResultRepository.getAll()
+            List<ResultModel> results = "All Assigned Subjects".equals(filter)
+                    ? ResultRepository.getByTeacher(teacher.getTeacherId())
                     : ResultRepository.getBySubject(filter);
             table.getItems().addAll(results);
         };

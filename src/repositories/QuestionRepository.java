@@ -37,6 +37,7 @@ public class QuestionRepository {
                             rs.getString("OPTION_LIST").split(",") : new String[]{};
                         String correctOptionText = rs.getString("CORRECT_OPTION_TEXT");
                         questions.add(new QuestionModel(
+                                rs.getString("QUESTION_ID"),
                                 rs.getString("QUESTION_TEXT"),
                                 options,
                                 correctOptionText != null ? correctOptionText.trim() : ""));
@@ -56,11 +57,28 @@ public class QuestionRepository {
                 String[] parts = line.split(";");
                 if (parts.length == 3) {
                     String[] options = parts[1].split(",");
-                    questions.add(new QuestionModel(parts[0], options, parts[2]));
+                    questions.add(new QuestionModel(null, parts[0], options, parts[2]));
                 }
             }
         } catch (IOException ignored) {}
         return questions;
+    }
+
+    public static boolean deleteQuestion(String questionId) {
+        if (questionId == null || questionId.isEmpty()) {
+            return false;
+        }
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 CallableStatement cs = conn.prepareCall("{call DELETE_QUESTION(?)}")) {
+                cs.setString(1, questionId);
+                cs.execute();
+                return true;
+            } catch (SQLException e) {
+                System.out.println("Question delete procedure failed: " + e.getMessage());
+            }
+        }
+        return false;
     }
 
     public static boolean addQuestion(String subject, String questionText, String[] options, String answer) {

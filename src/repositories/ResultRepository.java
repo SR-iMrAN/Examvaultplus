@@ -198,4 +198,34 @@ public class ResultRepository {
         } catch (IOException ignored) {}
         return results;
     }
+
+    // ===== GET RESULTS BY TEACHER =====
+    public static List<ResultModel> getByTeacher(String teacherId) {
+        List<ResultModel> results = new ArrayList<>();
+        if (OracleDatabase.isAvailable()) {
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT r.STUDENT_ID, s.SUBJECT_NAME, r.SCORE, r.TOTAL_MARKS FROM RESULTS r " +
+                     "JOIN SUBJECTS s ON r.SUBJECT_ID = s.SUBJECT_ID " +
+                     "WHERE s.TEACHER_ID = ? " +
+                     "ORDER BY r.STUDENT_ID, s.SUBJECT_NAME")) {
+                ps.setString(1, teacherId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        results.add(new ResultModel(
+                                rs.getString("STUDENT_ID"),
+                                rs.getString("SUBJECT_NAME"),
+                                rs.getInt("SCORE"),
+                                rs.getInt("TOTAL_MARKS")));
+                    }
+                }
+                if (!results.isEmpty()) {
+                    return results;
+                }
+            } catch (SQLException e) {
+                System.out.println("Teacher results DB query failed: " + e.getMessage());
+            }
+        }
+        return results;
+    }
 }
