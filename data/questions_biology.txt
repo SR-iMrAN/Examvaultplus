@@ -1,0 +1,3 @@
+1. What is the basic unit of life?;Tissue,Organ,Cell,Atom;Cell
+What carries genetic information?;RNA,DNA,Protein,Lipid;DNA
+What carries genetic information?;Protein,DNA,Protein,Lipid;dna

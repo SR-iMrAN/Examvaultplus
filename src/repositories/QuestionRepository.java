@@ -1,9 +1,7 @@
 package repositories;
 
-import models.QuestionModel;
-import utils.OracleDatabase;
-
 import java.io.*;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import models.QuestionModel;
+import utils.OracleDatabase;
 
 public class QuestionRepository {
     private static final String DATA_DIR = "data/";
@@ -64,6 +64,90 @@ public class QuestionRepository {
     }
 
     public static boolean addQuestion(String subject, String questionText, String[] options, String answer) {
+        if (OracleDatabase.isAvailable()) {
+            String subjectId = null;
+            try (Connection conn = OracleDatabase.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(
+                         "SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?")) {
+                ps.setString(1, subject.trim());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        subjectId = rs.getString("SUBJECT_ID");
+                    }
+                }
+            } catch (SQLException e) {
+                System.out.println("Question DB get subject failed: " + e.getMessage());
+            }
+            if (subjectId != null) {
+                String questionId = nextQuestionId();
+                String correctLabel = null;
+                Map<String, String> optionMap = new HashMap<>();
+                for (int i = 0; i < options.length; i++) {
+                    String label = String.valueOf((char)('A' + i));
+                    optionMap.put(label, options[i]);
+                    if (options[i].trim().equalsIgnoreCase(answer.trim())) {
+                        correctLabel = label;
+                    }
+                }
+                if (correctLabel == null) {
+                    System.out.println("Question DB save failed: correct answer does not match any option");
+                } else {
+                    String correctOptionId = null;
+                    Connection conn = null;
+                    try {
+                        conn = OracleDatabase.getConnection();
+                        conn.setAutoCommit(false);
+
+                        try (CallableStatement cs = conn.prepareCall("{call ADD_QUESTION(?, ?, ?)}")) {
+                            cs.setString(1, questionId);
+                            cs.setString(2, subjectId);
+                            cs.setString(3, questionText);
+                            cs.execute();
+                        }
+
+                        for (Map.Entry<String, String> entry : optionMap.entrySet()) {
+                            String optionLabel = entry.getKey();
+                            String optionText = entry.getValue();
+                            String optionId = nextOptionId();
+                            try (CallableStatement cs = conn.prepareCall("{call ADD_OPTION(?, ?, ?, ?)}")) {
+                                cs.setString(1, optionId);
+                                cs.setString(2, questionId);
+                                cs.setString(3, optionLabel);
+                                cs.setString(4, optionText);
+                                cs.execute();
+                            }
+                            if (optionLabel.equals(correctLabel)) {
+                                correctOptionId = optionId;
+                            }
+                        }
+
+                        if (correctOptionId != null) {
+                            try (CallableStatement cs = conn.prepareCall("{call SET_CORRECT_OPTION(?, ?)}")) {
+                                cs.setString(1, questionId);
+                                cs.setString(2, correctOptionId);
+                                cs.execute();
+                            }
+                        }
+                        conn.commit();
+                        return true;
+                    } catch (SQLException e) {
+                        System.out.println("Question DB save failed: " + e.getMessage());
+                        if (conn != null) {
+                            try {
+                                conn.rollback();
+                            } catch (SQLException ignored) {}
+                        }
+                    } finally {
+                        if (conn != null) {
+                            try {
+                                conn.close();
+                            } catch (SQLException ignored) {}
+                        }
+                    }
+                }
+            }
+        }
+
         String fileName = DATA_DIR + "questions_" + subject.toLowerCase() + ".txt";
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, true))) {
             StringBuilder sb = new StringBuilder(questionText).append(";");
@@ -78,6 +162,14 @@ public class QuestionRepository {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    private static String nextQuestionId() {
+        return "Q" + String.format("%09d", System.nanoTime() % 1000000000L);
+    }
+
+    private static String nextOptionId() {
+        return "O" + String.format("%09d", System.nanoTime() % 1000000000L);
     }
 
     public static boolean importFromFile(String subject, String filePath) {
