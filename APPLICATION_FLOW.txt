@@ -1,0 +1,969 @@
+================================================================================
+EXAMVAULT PLUS - COMPLETE APPLICATION FLOW DOCUMENTATION
+================================================================================
+From run.bat to All Operations - Detailed Step-by-Step
+
+================================================================================
+1. APPLICATION STARTUP (run.bat / run.ps1)
+================================================================================
+
+File: run.bat / run.ps1
+├─ Executes Java command with classpath
+├─ Loads JVM with JavaFX paths
+└─ Calls Main Application Entry Point: MainApplication.java
+
+================================================================================
+2. MAIN APPLICATION INITIALIZATION
+================================================================================
+
+File: src/gui/MainApplication.java
+├─ Extends javafx.application.Application
+├─ Override: start(Stage primaryStage)
+├─ Initializes CSS stylesheets: src/css/style.css
+│  └─ Applies dark theme styling (#0f1117, #161b22 colors)
+├─ Creates SceneManager.java (singleton for scene switching)
+└─ Shows Initial Scene: LoginView.java
+   └─ Display: Username/Password input form
+
+================================================================================
+3. LOGIN PROCESS
+================================================================================
+
+File: src/gui/LoginView.java
+├─ Renders Login Form
+│  ├─ Username TextField
+│  ├─ Password PasswordField
+│  ├─ Role ComboBox (Teacher / Student)
+│  └─ Login Button
+│
+├─ On Login Click:
+│  ├─ Reads: username, password, selectedRole
+│  └─ Calls: AuthService.authenticate(username, password, role)
+
+================================================================================
+4. AUTHENTICATION SERVICE
+================================================================================
+
+File: src/services/AuthService.java
+├─ Method: authenticate(String username, String password, String role)
+│  ├─ If role == "Teacher":
+│  │  ├─ Query: TeacherRepository.getTeacher(username, password)
+│  │  │  └─ Database Query:
+│  │  │     SELECT * FROM TEACHERS 
+│  │  │     WHERE TEACHER_USERNAME = ? AND TEACHER_PASSWORD = ?
+│  │  │     [From: OracleDatabase.java]
+│  │  │
+│  │  ├─ Create: TeacherModel object
+│  │  │  ├─ username (String)
+│  │  │  ├─ password (String)
+│  │  │  ├─ name (String) - teacher name
+│  │  │  └─ teacherId (String) - KEY for filtering
+│  │  │
+│  │  └─ Return: TeacherModel (or null if failed)
+│  │
+│  ├─ If role == "Student":
+│  │  ├─ Query: StudentRepository.getStudent(username, password)
+│  │  │  └─ Database Query:
+│  │  │     SELECT * FROM STUDENTS 
+│  │  │     WHERE STUDENT_USERNAME = ? AND STUDENT_PASSWORD = ?
+│  │  │
+│  │  ├─ Create: StudentModel object
+│  │  │  ├─ username (String)
+│  │  │  ├─ password (String)
+│  │  │  ├─ name (String)
+│  │  │  └─ studentId (String) - KEY for student operations
+│  │  │
+│  │  └─ Return: StudentModel (or null if failed)
+│  │
+│  └─ If Authentication Fails:
+│     └─ Show error message: "Invalid credentials"
+
+================================================================================
+5. TEACHER FLOW - DASHBOARD LOADING
+================================================================================
+
+File: src/gui/TeacherDashboard.java
+├─ Constructor: TeacherDashboard(TeacherModel teacher)
+│  ├─ Stores: this.teacher = teacher (contains teacherId)
+│  ├─ Creates: BorderPane root (main layout)
+│  ├─ Sets top: buildNavBar() → Navigation buttons
+│  ├─ Sets center: contentArea (BorderPane for tab content)
+│  └─ Initial view: showOverviewTab()
+
+================================================================================
+6. TEACHER OVERVIEW TAB
+================================================================================
+
+File: src/gui/TeacherDashboard.java → showOverviewTab()
+│
+├─ STEP 1: Load Teacher's Subjects
+│  ├─ Calls: SubjectRepository.getByTeacher(teacher.getTeacherId())
+│  │  ├─ Database Query:
+│  │  │  SELECT SUBJECT_NAME FROM SUBJECTS 
+│  │  │  WHERE TEACHER_ID = ? 
+│  │  │  ORDER BY SUBJECT_NAME
+│  │  │  [TEACHER_ID is the foreign key constraint]
+│  │  │
+│  │  ├─ File: src/repositories/SubjectRepository.java
+│  │  └─ Returns: List<String> subjects (only this teacher's subjects)
+│  │
+│  └─ Display: StatCard showing count of subjects
+│
+├─ STEP 2: Load Teacher's Quiz Results
+│  ├─ Calls: ResultRepository.getByTeacher(teacher.getTeacherId())
+│  │  ├─ Database Query:
+│  │  │  SELECT r.STUDENT_ID, s.SUBJECT_NAME, r.SCORE, r.TOTAL_MARKS 
+│  │  │  FROM RESULTS r
+│  │  │  JOIN SUBJECTS s ON r.SUBJECT_ID = s.SUBJECT_ID
+│  │  │  WHERE s.TEACHER_ID = ?
+│  │  │  [Joins to filter by teacher]
+│  │  │
+│  │  ├─ File: src/repositories/ResultRepository.java
+│  │  └─ Returns: List<ResultModel> (only results for this teacher's subjects)
+│  │
+│  └─ Display: Stats cards (total quizzes, avg score)
+│
+├─ STEP 3: Display Recent Activity
+│  ├─ Take last 5 results from above
+│  ├─ Create HBox rows for each result:
+│  │  ├─ Student ID (from ResultModel.getStudentId())
+│  │  ├─ Subject name (from ResultModel.getSubject())
+│  │  ├─ Score (from ResultModel.getScore() / getTotal())
+│  │  └─ Percentage (from ResultModel.getPercentage())
+│  │
+│  └─ Apply styling based on score (green if >=60%, red otherwise)
+│
+└─ Display: ScrollPane with all widgets
+
+================================================================================
+7. TEACHER SUBJECTS TAB
+================================================================================
+
+File: src/gui/TeacherDashboard.java → showSubjectsTab()
+│
+├─ SECTION A: Add New Subject Form
+│  ├─ Input: TextField for subject name
+│  ├─ On Add Button Click:
+│  │  ├─ Get teacherId from: teacher.getTeacherId()
+│  │  ├─ Call: SubjectRepository.addSubject(subjectName, teacherId)
+│  │  │  ├─ File: src/repositories/SubjectRepository.java
+│  │  │  ├─ Generate: subjectId = "SUB" + padded number
+│  │  │  ├─ Database Insert:
+│  │  │  │  INSERT INTO SUBJECTS (SUBJECT_ID, SUBJECT_NAME, TEACHER_ID)
+│  │  │  │  VALUES (?, ?, ?)
+│  │  │  │  [Sets foreign key relationship to teacher]
+│  │  │  │
+│  │  │  ├─ File created: data/subject/[subject_name].txt (backup)
+│  │  │  └─ Returns: boolean success
+│  │  │
+│  │  └─ Show: Success/error message
+│  │
+│  └─ If success: Call showSubjectsTab() to refresh
+
+├─ SECTION B: View All Teacher's Subjects
+│  ├─ Load: SubjectRepository.getByTeacher(teacher.getTeacherId())
+│  │  └─ Only shows subjects assigned to this teacher
+│  │
+│  ├─ For each subject:
+│  │  ├─ Call: QuestionRepository.loadForSubject(subjectName)
+│  │  │  ├─ Database Query:
+│  │  │  │  SELECT COUNT(*) FROM QUESTIONS
+│  │  │  │  WHERE SUBJECT_ID = (SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?)
+│  │  │  │
+│  │  │  └─ Returns: List<QuestionModel> (count)
+│  │  │
+│  │  └─ Display: Subject name + question count badge
+│  │
+│  └─ View: HBox rows with subject info
+
+================================================================================
+8. TEACHER QUESTIONS TAB
+================================================================================
+
+File: src/gui/TeacherDashboard.java → showQuestionsTab()
+│
+├─ INITIAL LOAD:
+│  └─ Subjects: SubjectRepository.getByTeacher(teacher.getTeacherId())
+│     └─ Only filtered to this teacher's subjects
+│
+├─ SECTION A: Existing Questions List (NEW FEATURE)
+│  ├─ TableView<QuestionModel> questionTable
+│  ├─ Subject Selector: ComboBox (teacher's subjects only)
+│  │
+│  ├─ On Subject Change:
+│  │  ├─ Call: QuestionRepository.loadForSubject(selectedSubject)
+│  │  │  ├─ Database Query:
+│  │  │  │  SELECT q.QUESTION_ID, q.QUESTION_TEXT, q.CORRECT_OPTION_ID,
+│  │  │  │         LISTAGG(o.OPTION_TEXT, ',') as OPTION_LIST,
+│  │  │  │         co.OPTION_TEXT as CORRECT_OPTION_TEXT
+│  │  │  │  FROM QUESTIONS q
+│  │  │  │  LEFT JOIN OPTIONS o ON q.QUESTION_ID = o.QUESTION_ID
+│  │  │  │  LEFT JOIN OPTIONS co ON q.CORRECT_OPTION_ID = co.OPTION_ID
+│  │  │  │  WHERE q.SUBJECT_ID = (SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?)
+│  │  │  │  GROUP BY ...
+│  │  │  │
+│  │  │  ├─ File: src/repositories/QuestionRepository.java
+│  │  │  ├─ Create: QuestionModel objects with QUESTION_ID
+│  │  │  │  ├─ id (String) - QUESTION_ID from DB
+│  │  │  │  ├─ questionText (String)
+│  │  │  │  ├─ options (String[])
+│  │  │  │  └─ answer (String)
+│  │  │  │
+│  │  │  └─ Returns: List<QuestionModel>
+│  │  │
+│  │  └─ Populate: questionTable.getItems().addAll(loaded)
+│  │
+│  ├─ Table Columns:
+│  │  ├─ Column 1: Question Text (from QuestionModel.getQuestionText())
+│  │  ├─ Column 2: Answer (from QuestionModel.getAnswer())
+│  │  └─ Column 3: Delete Button (Action)
+│  │
+│  ├─ Delete Button Action (NEW):
+│  │  ├─ Show: Alert confirmation dialog
+│  │  │  └─ "Delete this question permanently? YES / NO"
+│  │  │
+│  │  ├─ If YES:
+│  │  │  ├─ Get: questionId = QuestionModel.getId()
+│  │  │  ├─ Call: QuestionRepository.deleteQuestion(questionId)
+│  │  │  │  ├─ File: src/repositories/QuestionRepository.java
+│  │  │  │  ├─ Database Call (Stored Procedure):
+│  │  │  │  │  CallableStatement cs = conn.prepareCall("{call DELETE_QUESTION(?)}")
+│  │  │  │  │  cs.setString(1, questionId)
+│  │  │  │  │  cs.execute()
+│  │  │  │  │
+│  │  │  │  │  [DELETE_QUESTION is Oracle Stored Procedure]
+│  │  │  │  │  [It cascades delete from QUESTIONS, OPTIONS, RESULTS tables]
+│  │  │  │  │
+│  │  │  │  └─ Returns: boolean success
+│  │  │  │
+│  │  │  ├─ Show: Success message
+│  │  │  └─ Refresh: Call refreshQuestions[0].run() to update table
+│  │  │
+│  │  └─ If NO:
+│  │     └─ Close dialog (no action)
+│  │
+│  └─ Message Display: deleteMsgLbl shows result
+
+├─ SECTION B: Add New Question Form
+│  ├─ Subject Selector: ComboBox (teacher's subjects only)
+│  ├─ Inputs:
+│  │  ├─ Question Text: TextArea
+│  │  ├─ Options: 4 TextFields (A, B, C, D)
+│  │  └─ Correct Answer: TextField (must match one option exactly)
+│  │
+│  ├─ On Add Button Click:
+│  │  ├─ Validate: All fields filled, answer matches one option
+│  │  ├─ Call: QuestionRepository.addQuestion(subject, questionText, options, answer)
+│  │  │  ├─ File: src/repositories/QuestionRepository.java
+│  │  │  ├─ Get SUBJECT_ID:
+│  │  │  │  SELECT SUBJECT_ID FROM SUBJECTS WHERE SUBJECT_NAME = ?
+│  │  │  │
+│  │  │  ├─ Generate: questionId = "Q" + randomNumber
+│  │  │  ├─ Transaction Start: conn.setAutoCommit(false)
+│  │  │  │
+│  │  │  ├─ Step 1: Insert Question
+│  │  │  │  CallableStatement: {call ADD_QUESTION(?, ?, ?)}
+│  │  │  │  Parameters: questionId, subjectId, questionText
+│  │  │  │
+│  │  │  ├─ Step 2: Insert Options (4 times)
+│  │  │  │  For each option (A, B, C, D):
+│  │  │  │  ├─ Generate: optionId = "O" + randomNumber
+│  │  │  │  ├─ CallableStatement: {call ADD_OPTION(?, ?, ?, ?)}
+│  │  │  │  ├─ Parameters: optionId, questionId, label (A/B/C/D), optionText
+│  │  │  │  │
+│  │  │  │  └─ If this is correct answer:
+│  │  │  │     └─ Store: correctOptionId = optionId
+│  │  │  │
+│  │  │  ├─ Step 3: Set Correct Answer
+│  │  │  │  CallableStatement: {call SET_CORRECT_OPTION(?, ?)}
+│  │  │  │  Parameters: questionId, correctOptionId
+│  │  │  │
+│  │  │  ├─ Commit: conn.commit()
+│  │  │  └─ Returns: true if success
+│  │  │
+│  │  ├─ Fallback: If DB fails, save to file:
+│  │  │  ├─ File: data/questions_[subject_lowercase].txt
+│  │  │  └─ Format: questionText;option1,option2,option3,option4;correctAnswer
+│  │  │
+│  │  └─ Show: Success message
+│  │
+│  └─ Clear: All input fields
+
+├─ SECTION C: Import Questions from File
+│  ├─ Input: File Path (full path to .txt file)
+│  ├─ Subject Selector: ComboBox (teacher's subjects only)
+│  ├─ File Format Expected:
+│  │  Question text;Option1,Option2,Option3,Option4;CorrectAnswer
+│  │  (one line per question)
+│  │
+│  ├─ On Import Button Click:
+│  │  ├─ Call: QuestionRepository.importFromFile(subject, filePath)
+│  │  │  ├─ File: src/repositories/QuestionRepository.java
+│  │  │  ├─ Source File: Read from filePath
+│  │  │  ├─ Target File: data/questions_[subject_lowercase].txt
+│  │  │  ├─ For each valid line:
+│  │  │  │  ├─ Parse: question;options;answer
+│  │  │  │  ├─ Validate: Has 3 parts, options contain commas, answer not empty
+│  │  │  │  └─ Append to target file
+│  │  │  │
+│  │  │  └─ Returns: true if imported successfully
+│  │  │
+│  │  └─ Show: Success/error message
+│  │
+│  └─ Clear: File path input
+
+================================================================================
+9. TEACHER RESULTS TAB
+================================================================================
+
+File: src/gui/TeacherDashboard.java → showResultsTab()
+│
+├─ INITIAL LOAD:
+│  └─ Subjects: SubjectRepository.getByTeacher(teacher.getTeacherId())
+│     └─ Only this teacher's subjects
+│
+├─ Filter Row:
+│  ├─ ComboBox Options:
+│  │  ├─ "All Assigned Subjects" (default)
+│  │  └─ [List of teacher's subjects]
+│  │
+│  ├─ On Filter Change:
+│  │  ├─ If "All Assigned Subjects":
+│  │  │  └─ Load: ResultRepository.getByTeacher(teacher.getTeacherId())
+│  │  │     ├─ Database Query:
+│  │  │     │  SELECT r.STUDENT_ID, s.SUBJECT_NAME, r.SCORE, r.TOTAL_MARKS
+│  │  │     │  FROM RESULTS r
+│  │  │     │  JOIN SUBJECTS s ON r.SUBJECT_ID = s.SUBJECT_ID
+│  │  │     │  WHERE s.TEACHER_ID = ?
+│  │  │     │
+│  │  │     └─ Returns: List<ResultModel> (only this teacher's results)
+│  │  │
+│  │  ├─ If specific subject selected:
+│  │  │  └─ Load: ResultRepository.getBySubject(subjectName)
+│  │  │     ├─ Database Query:
+│  │  │     │  SELECT r.STUDENT_ID, s.SUBJECT_NAME, r.SCORE, r.TOTAL_MARKS
+│  │  │     │  FROM RESULTS r
+│  │  │     │  JOIN SUBJECTS s ON r.SUBJECT_ID = s.SUBJECT_ID
+│  │  │     │  WHERE s.SUBJECT_NAME = ?
+│  │  │     │
+│  │  │     └─ Returns: List<ResultModel>
+│  │  │
+│  │  └─ Populate: table.getItems().addAll(results)
+│  │
+│  └─ File: src/repositories/ResultRepository.java
+
+├─ Results Table:
+│  ├─ Column 1: Student ID (from ResultModel.getStudentId())
+│  ├─ Column 2: Subject (from ResultModel.getSubject())
+│  ├─ Column 3: Score (from ResultModel.getScore() / getTotal())
+│  ├─ Column 4: Percentage (from ResultModel.getPercentage())
+│  │  └─ Calculated: (score/total) * 100
+│  │
+│  └─ Column 5: Grade (calculated from percentage)
+│     ├─ A+ if >= 80%
+│     ├─ A if >= 75%
+│     ├─ B if >= 60%
+│     ├─ D if >= 40%
+│     └─ F if < 40%
+
+├─ Summary:
+│  └─ Label: Shows "X result(s) shown" (updates when table changes)
+
+└─ File: src/models/ResultModel.java
+   ├─ studentId (String)
+   ├─ subject (String)
+   ├─ score (int)
+   ├─ total (int)
+   └─ getPercentage() → (score/total)*100
+
+================================================================================
+10. STUDENT FLOW - DASHBOARD LOADING
+================================================================================
+
+File: src/gui/StudentDashboard.java
+├─ Constructor: StudentDashboard(StudentModel student)
+│  ├─ Stores: this.student = student (contains studentId)
+│  ├─ Creates: BorderPane root (main layout)
+│  └─ Loads: List of available quizzes
+
+├─ Load Quiz List:
+│  ├─ Call: QuizRepository.getAllQuizzes() [or similar]
+│  │  ├─ Database Query:
+│  │  │  SELECT DISTINCT SUBJECT_ID, SUBJECT_NAME FROM SUBJECTS
+│  │  │  WHERE SUBJECT_ID IN (SELECT SUBJECT_ID FROM QUIZZES)
+│  │  │
+│  │  └─ Returns: List<String> subjects available for quiz
+│  │
+│  └─ Display: List of subjects student can take quiz on
+
+├─ On Quiz Selection:
+│  ├─ Call: QuestionRepository.loadForSubject(selectedSubject)
+│  │  ├─ Get questions for quiz (same query as teacher)
+│  │  └─ Returns: List<QuestionModel>
+│  │
+│  ├─ Display: QuizView.java
+│  │  ├─ For each question:
+│  │  │  ├─ Display: Question text
+│  │  │  ├─ Display: 4 Radio buttons (options)
+│  │  │  └─ Student select: One answer per question
+│  │  │
+│  │  └─ Submit Button
+│  │
+│  └─ On Submit:
+│     ├─ Calculate: score = number of correct answers
+│     ├─ Save Result:
+│     │  ├─ Call: ResultRepository.save(studentId, subject, score, totalQuestions)
+│     │  │  ├─ File: src/repositories/ResultRepository.java
+│     │  │  ├─ Get: subjectId from SUBJECTS table
+│     │  │  ├─ Generate: resultId = "R" + randomNumber
+│     │  │  ├─ Generate: quizId = "QZ" + randomNumber
+│     │  │  │
+│     │  │  ├─ Insert into QUIZZES:
+│     │  │  │  INSERT INTO QUIZZES (QUIZ_ID, STUDENT_ID, SUBJECT_ID, 
+│     │  │  │                       SCORE, TOTAL_MARKS, QUIZ_DATE)
+│     │  │  │  VALUES (?, ?, ?, ?, ?, SYSDATE)
+│     │  │  │
+│     │  │  ├─ Insert into RESULTS:
+│     │  │  │  INSERT INTO RESULTS (RESULT_ID, STUDENT_ID, SUBJECT_ID, 
+│     │  │  │                       QUIZ_ID, SCORE, TOTAL_MARKS, RESULT_DATE)
+│     │  │  │  VALUES (?, ?, ?, ?, ?, ?, SYSDATE)
+│     │  │  │
+│     │  │  ├─ Fallback to file if DB fails:
+│     │  │  │  └─ File: data/results.txt
+│     │  │  │     Format: studentId,subject,score,total
+│     │  │  │
+│     │  │  └─ Returns: void
+│     │  │
+│     │  └─ File: src/models/StudentModel.java stores studentId
+│     │
+│     ├─ Display: Result summary
+│     │  ├─ Score: X / Y
+│     │  ├─ Percentage: XX%
+│     │  ├─ Grade: [A+/A/B/D/F]
+│     │  └─ Message based on score
+│     │
+│     └─ Button: Return to subject list / Exit
+
+================================================================================
+11. DATABASE LAYER
+================================================================================
+
+File: src/utils/OracleDatabase.java
+├─ Method: getConnection()
+│  ├─ Load Oracle JDBC Driver
+│  ├─ Check: Connection pool or create new
+│  ├─ Connection String: 
+│  │  jdbc:oracle:thin:@[HOST]:[PORT]:SID
+│  │  Example: jdbc:oracle:thin:@localhost:1521:XE
+│  │
+│  └─ Returns: Connection object
+
+├─ Method: isAvailable()
+│  ├─ Try: Test connection
+│  └─ Returns: boolean (true if DB accessible)
+
+└─ Fallback: If isAvailable() == false
+   ├─ All repositories fall back to file storage
+   ├─ File locations: data/ directory
+   └─ Format: Plain text or CSV
+
+================================================================================
+12. REPOSITORY LAYER - DETAILED
+================================================================================
+
+File: src/repositories/SubjectRepository.java
+├─ getAll() → List<String>
+│  └─ Load from: SUBJECTS table (no filter)
+│
+├─ getByTeacher(teacherId) → List<String> [NEW]
+│  ├─ Query: SELECT SUBJECT_NAME FROM SUBJECTS 
+│  │          WHERE TEACHER_ID = ?
+│  └─ Only returns subjects assigned to this teacher
+│
+├─ addSubject(subjectName, teacherId) → boolean
+│  └─ Inserts: subjectId, subjectName, teacherId
+│
+└─ Fallback: data/subject/subjects.txt
+
+File: src/repositories/QuestionRepository.java
+├─ loadForSubject(subject) → List<QuestionModel>
+│  ├─ Query with joins to OPTIONS table
+│  ├─ Returns: Questions with ID, text, options, answer
+│  └─ Models created with QuestionModel(id, text, options[], answer)
+│
+├─ addQuestion(subject, text, options[], answer) → boolean
+│  ├─ Uses stored procedures: ADD_QUESTION, ADD_OPTION, SET_CORRECT_OPTION
+│  └─ Fallback: data/questions_[subject].txt
+│
+├─ deleteQuestion(questionId) → boolean [NEW]
+│  ├─ Calls: {call DELETE_QUESTION(?)}
+│  └─ Cascades delete in database
+│
+└─ importFromFile(subject, filePath) → boolean
+   └─ Reads: filePath and appends to data/questions_[subject].txt
+
+File: src/repositories/ResultRepository.java
+├─ save(studentId, subject, score, total) → void
+│  ├─ Gets: subjectId from SUBJECTS
+│  ├─ Inserts: Into QUIZZES and RESULTS tables
+│  └─ Fallback: data/results.txt
+│
+├─ getByStudent(studentId) → List<ResultModel>
+│  └─ Query: Student's quiz results
+│
+├─ getBySubject(subject) → List<ResultModel>
+│  └─ Query: All results for a subject
+│
+├─ getByTeacher(teacherId) → List<ResultModel> [NEW]
+│  ├─ Query: SELECT ... FROM RESULTS r
+│  │          JOIN SUBJECTS s ON ...
+│  │          WHERE s.TEACHER_ID = ?
+│  └─ Only returns results for teacher's subjects
+│
+└─ getAll() → List<ResultModel>
+   └─ Query: All results (no filter)
+
+File: src/repositories/CGPARepository.java
+├─ saveMarksRecord(studentId, calculatedGpa) → boolean
+│  ├─ Generates: CGPA_ID fixed to fit VARCHAR2(10)
+│  ├─ Inserts: CGPA_RECORDS with mode `MARKS_BASED`
+│  └─ Returns: true if DB insert succeeded
+│
+├─ saveSubjectRecord(studentId, calculatedGpa, subjects) → boolean
+│  ├─ Generates: CGPA_ID and CGPA_SUB_ID fixed to fit VARCHAR2(10)
+│  ├─ Inserts: CGPA_RECORDS with mode `SUBJECT_BASED`
+│  ├─ Inserts: one row per subject into CGPA_SUBJECTS
+│  ├─ Looks up: SUBJECT_ID from SUBJECTS by subject name
+│  └─ Returns: true if all inserts succeed
+│
+└─ getHistory(studentId) → List<CGPARecordModel>
+   ├─ Query: SELECT history rows from CGPA_RECORDS
+   │        LEFT JOIN CGPA_SUBJECTS ON CGPA_ID
+   ├─ Loads: CGPA summary and subject detail rows
+   └─ Returns: history list for the student
+
+File: src/repositories/StudentRepository.java
+├─ getStudent(username, password) → StudentModel
+│  └─ Query: SELECT * FROM STUDENTS WHERE ...
+│
+└─ addStudent(name, username, password) → boolean
+   └─ Insert: Into STUDENTS table
+
+File: src/repositories/TeacherRepository.java
+├─ getTeacher(username, password) → TeacherModel
+│  └─ Query: SELECT * FROM TEACHERS WHERE ...
+│
+└─ addTeacher(name, username, password) → boolean
+   └─ Insert: Into TEACHERS table
+
+================================================================================
+13. MODEL LAYER
+================================================================================
+
+File: src/models/UserModel.java (Base)
+├─ username (String)
+└─ password (String)
+
+File: src/models/TeacherModel.java
+├─ Extends: UserModel
+├─ name (String)
+├─ teacherId (String) [KEY - used for filtering]
+└─ contact (String)
+
+File: src/models/StudentModel.java
+├─ Extends: UserModel
+├─ name (String)
+├─ studentId (String) [KEY - used for filtering]
+└─ contact (String)
+
+File: src/models/QuestionModel.java
+├─ id (String) [QUESTION_ID from DB, null for file-based]
+├─ questionText (String)
+├─ options (String[]) - 4 options (A, B, C, D)
+└─ answer (String) - Correct answer text
+
+File: src/models/ResultModel.java
+├─ studentId (String)
+├─ subject (String)
+├─ score (int)
+├─ total (int)
+└─ getPercentage() → double
+
+File: src/models/QuizModel.java [if exists]
+├─ quizId (String)
+├─ subject (String)
+├─ totalQuestions (int)
+└─ questions (List<QuestionModel>)
+
+================================================================================
+14. SERVICE LAYER
+================================================================================
+
+File: src/services/AuthService.java
+├─ authenticate(username, password, role) → UserModel
+│  ├─ Delegates to: TeacherRepository or StudentRepository
+│  └─ Returns: Teacher/StudentModel or null
+
+File: src/services/QuizService.java
+├─ getQuizzes(studentId) → List<QuizModel>
+│  └─ Gets: Available quizzes for student
+│
+├─ getQuestions(subjectId) → List<QuestionModel>
+│  └─ Gets: Questions for quiz
+│
+└─ submitQuiz(studentId, subject, answers[]) → ResultModel
+   ├─ Calculate: score
+   ├─ Save: Result to database/file
+   └─ Returns: ResultModel with score
+
+File: src/services/CGPAService.java
+├─ calculateCGPA(studentId) → double
+│  └─ Calculates: Cumulative GPA from all results
+
+================================================================================
+15. GUI LAYER HIERARCHY
+================================================================================
+
+File: src/gui/SceneManager.java
+├─ Singleton pattern
+├─ Method: showLoginView()
+│  └─ Sets: scene to LoginView
+│
+├─ Method: showTeacherDashboard(TeacherModel)
+│  └─ Creates: new TeacherDashboard(teacher)
+│
+├─ Method: showStudentDashboard(StudentModel)
+│  └─ Creates: new StudentDashboard(student)
+│
+└─ Method: showLoginView() [Logout]
+   └─ Returns to login screen
+
+File: src/gui/LoginView.java
+├─ Extends: javafx.scene.layout.VBox
+├─ Components:
+│  ├─ Label: "ExamVault Plus"
+│  ├─ TextField: username
+│  ├─ PasswordField: password
+│  ├─ ComboBox: role (Teacher / Student)
+│  └─ Button: Login
+│
+└─ On Login:
+   ├─ Call: AuthService.authenticate(...)
+   ├─ If success:
+   │  ├─ If Teacher: SceneManager.showTeacherDashboard(teacher)
+   │  └─ If Student: SceneManager.showStudentDashboard(student)
+   └─ If fail: Show error label
+
+File: src/gui/TeacherDashboard.java
+├─ Hierarchy:
+│  └─ BorderPane root
+│     ├─ Top: HBox navBar
+│     │  ├─ Brand label
+│     │  ├─ Nav buttons: Overview, Subjects, Questions, Results
+│     │  └─ User info + Logout
+│     │
+│     ├─ Center: BorderPane contentArea
+│     │  └─ Shows selected tab content
+│     │
+│     └─ [No bottom/left/right]
+│
+├─ Tabs (managed by activeTab variable):
+│  ├─ showOverviewTab() → VBox with stats and recent activity
+│  ├─ showSubjectsTab() → VBox with add subject form + list
+│  ├─ showQuestionsTab() → VBox with question list + add form + import
+│  └─ showResultsTab() → VBox with results table + filter
+
+File: src/gui/StudentDashboard.java
+├─ Similar structure to TeacherDashboard
+├─ Tabs:
+│  ├─ showDashboard() → Overview with stats
+│  ├─ showQuizzes() → List of available quizzes
+│  ├─ showResults() → Student's quiz history
+│  └─ showProfile() → Student info
+│
+└─ Quiz taking:
+   ├─ Quiz display per question
+   ├─ Submit answers
+   └─ Show results
+
+File: src/gui/QuizView.java [if exists]
+├─ Display: Single quiz/questions
+├─ Components:
+│  ├─ Question text
+│  ├─ Radio buttons for options
+│  ├─ Previous/Next buttons
+│  └─ Submit button
+│
+└─ On Submit:
+   ├─ Collect: Student answers
+   ├─ Call: QuizService.submitQuiz(...)
+   └─ Display: Results
+
+File: src/css/style.css
+├─ Styling for all controls
+├─ Dark theme colors:
+│  ├─ Background: #0f1117
+│  ├─ Cards: #161b22
+│  ├─ Accent: #3b82f6 (blue)
+│  ├─ Success: #22c55e (green)
+│  └─ Danger: #ef4444 (red)
+│
+├─ Classes:
+│  ├─ .nav-bar
+│  ├─ .nav-item / .nav-item-active
+│  ├─ .card
+│  ├─ .btn-primary / .btn-secondary / .btn-danger
+│  ├─ .stat-card
+│  ├─ .badge
+│  ├─ .text-success / .text-danger / .text-secondary
+│  └─ .heading-xl / .heading-lg / .heading-md
+
+================================================================================
+16. FILE STORAGE LAYER (Fallback)
+================================================================================
+
+Directory: data/
+├─ subject/
+│  ├─ subjects.txt
+│  │  └─ Format: One subject name per line
+│  │
+│  └─ [subject_name].txt
+│     └─ Format: question;option1,option2,option3,option4;correctAnswer
+│
+├─ students.txt
+│  └─ Format: studentId,username,password,name,contact
+│
+├─ teachers.txt
+│  └─ Format: teacherId,username,password,name,contact
+│
+├─ questions_[subject].txt
+│  └─ Format: question;options;answer (one per line)
+│
+└─ results.txt
+   └─ Format: studentId,subject,score,total (one per line)
+
+================================================================================
+17. DATABASE SCHEMA (Oracle)
+================================================================================
+
+USERS (Base table - optional)
+├─ USER_ID (PK)
+├─ USERNAME
+├─ PASSWORD
+└─ ROLE (TEACHER / STUDENT)
+
+TEACHERS
+├─ TEACHER_ID (PK)
+├─ TEACHER_USERNAME
+├─ TEACHER_PASSWORD
+├─ TEACHER_NAME
+└─ CONTACT
+
+STUDENTS
+├─ STUDENT_ID (PK)
+├─ STUDENT_USERNAME
+├─ STUDENT_PASSWORD
+├─ STUDENT_NAME
+└─ CONTACT
+
+SUBJECTS
+├─ SUBJECT_ID (PK)
+├─ SUBJECT_NAME
+└─ TEACHER_ID (FK → TEACHERS)
+   └─ [KEY CONSTRAINT - enforces teacher ownership]
+
+QUESTIONS
+├─ QUESTION_ID (PK)
+├─ SUBJECT_ID (FK → SUBJECTS)
+├─ QUESTION_TEXT
+└─ CORRECT_OPTION_ID (FK → OPTIONS)
+
+OPTIONS
+├─ OPTION_ID (PK)
+├─ QUESTION_ID (FK → QUESTIONS)
+├─ OPTION_LABEL (A, B, C, D)
+└─ OPTION_TEXT
+
+QUIZZES
+├─ QUIZ_ID (PK)
+├─ STUDENT_ID (FK → STUDENTS)
+├─ SUBJECT_ID (FK → SUBJECTS)
+├─ SCORE
+├─ TOTAL_MARKS
+└─ QUIZ_DATE
+
+RESULTS
+├─ RESULT_ID (PK)
+├─ STUDENT_ID (FK → STUDENTS)
+├─ SUBJECT_ID (FK → SUBJECTS)
+│  └─ [Used to filter by teacher via TEACHER_ID in SUBJECTS]
+├─ QUIZ_ID (FK → QUIZZES)
+├─ SCORE
+├─ TOTAL_MARKS
+└─ RESULT_DATE
+
+Stored Procedures:
+├─ ADD_NEW_STUDENT(id, username, password, name)
+├─ ADD_NEW_TEACHER(id, username, password, name)
+├─ ADD_SUBJECT(id, name, teacherId)
+├─ ADD_QUESTION(id, subjectId, questionText)
+├─ ADD_OPTION(id, questionId, label, text)
+├─ SET_CORRECT_OPTION(questionId, optionId)
+├─ DELETE_QUESTION(questionId) [NEW]
+│  └─ Cascades delete: QUESTIONS, OPTIONS, RESULTS entries
+├─ GET_TEACHER_SUBJECTS(teacherId)
+├─ CALCULATE_QUIZ_SCORE(quizId, studentId)
+└─ ASSIGN_SUBJECT_TO_TEACHER(subjectId, teacherId)
+
+================================================================================
+18. COMPLETE TEACHER LOGIN TO DELETE QUESTION FLOW
+================================================================================
+
+1. User clicks run.bat
+   ↓
+2. MainApplication.start() → LoginView
+   ↓
+3. User enters: username, password, role="Teacher"
+   ↓
+4. LoginView → Button.Login.onClick()
+   ↓
+5. AuthService.authenticate(username, password, "Teacher")
+   ↓
+6. TeacherRepository.getTeacher(username, password)
+   ├─ Query DB: SELECT * FROM TEACHERS WHERE username = ? AND password = ?
+   └─ Returns: TeacherModel with teacherId="T001"
+   ↓
+7. SceneManager.showTeacherDashboard(teacher)
+   ↓
+8. TeacherDashboard(teacher) constructor
+   ├─ Stores: this.teacher (teacherId="T001")
+   └─ Show: showOverviewTab()
+   ↓
+9. showOverviewTab()
+   ├─ SubjectRepository.getByTeacher("T001")
+   │  └─ Query: SELECT SUBJECT_NAME FROM SUBJECTS WHERE TEACHER_ID = 'T001'
+   │     └─ Returns: ["Mathematics", "Physics"]
+   └─ ResultRepository.getByTeacher("T001")
+      └─ Query: SELECT r.* FROM RESULTS r JOIN SUBJECTS s WHERE s.TEACHER_ID = 'T001'
+         └─ Returns: Results for only T001's subjects
+   ↓
+10. User clicks "Questions" tab
+    ↓
+11. showQuestionsTab()
+    ├─ SubjectRepository.getByTeacher("T001")
+    │  └─ Returns: ["Mathematics", "Physics"]
+    └─ Display: Question table populated
+    ↓
+12. Teacher selects "Mathematics" in ComboBox
+    ↓
+13. refreshQuestions[0].run()
+    ├─ QuestionRepository.loadForSubject("Mathematics")
+    │  ├─ Query: SELECT q.QUESTION_ID, q.QUESTION_TEXT, ...
+    │  │          FROM QUESTIONS q
+    │  │          WHERE q.SUBJECT_ID = 
+    │  │                (SELECT SUBJECT_ID FROM SUBJECTS 
+    │  │                 WHERE SUBJECT_NAME = 'Mathematics')
+    │  └─ Returns: List<QuestionModel> with ids
+    │     └─ [
+    │        QuestionModel(id="Q123", text="2+2=?", options=["4","5","6","7"], answer="4"),
+    │        QuestionModel(id="Q124", text="3+3=?", options=["5","6","7","8"], answer="6")
+    │        ]
+    └─ Table rows populated with delete buttons
+    ↓
+14. Teacher clicks Delete button on Q123
+    ↓
+15. Alert confirmation dialog: "Delete this question permanently?"
+    ↓
+16. Teacher clicks YES
+    ↓
+17. QuestionRepository.deleteQuestion("Q123")
+    ├─ CallableStatement: {call DELETE_QUESTION('Q123')}
+    ├─ Database executes stored procedure:
+    │  ├─ Deletes from OPTIONS where QUESTION_ID = 'Q123'
+    │  ├─ Deletes from RESULTS where QUESTION_ID = 'Q123' (if any)
+    │  └─ Deletes from QUESTIONS where QUESTION_ID = 'Q123'
+    └─ Returns: true
+    ↓
+18. Show success message: "✓ Question deleted successfully."
+    ↓
+19. refreshQuestions[0].run() [auto-refresh table]
+    ├─ Query again: SELECT ... FROM QUESTIONS ...
+    └─ Table now shows only Q124 (Q123 is gone)
+
+================================================================================
+19. FILTERING CHAIN - Why Teacher Only Sees Their Data
+================================================================================
+
+SUBJECT FILTERING:
+└─ SUBJECTS table has TEACHER_ID foreign key
+   ├─ Subject "Math" is assigned to TEACHER_ID = 'T001'
+   ├─ Subject "English" is assigned to TEACHER_ID = 'T002'
+   │
+   └─ When T001 logs in:
+      ├─ getByTeacher('T001') returns only "Math"
+      ├─ T001 cannot see "English" (assigned to T002)
+      └─ T001 cannot add questions to "English"
+
+QUESTION FILTERING (via Subject):
+└─ QUESTIONS table has SUBJECT_ID foreign key
+   ├─ Questions are tied to subjects through SUBJECT_ID
+   │
+   └─ When T001 views questions:
+      ├─ Only sees questions for subjects with TEACHER_ID = 'T001'
+      └─ Cascade through: SUBJECT_ID → TEACHER_ID
+
+RESULT FILTERING:
+└─ RESULTS table has SUBJECT_ID foreign key
+   ├─ Results reference SUBJECT_ID
+   │
+   └─ When T001 views results:
+      ├─ Query joins RESULTS → SUBJECTS
+      ├─ Filters: WHERE s.TEACHER_ID = 'T001'
+      └─ Only sees results for their assigned subjects
+
+================================================================================
+20. KEY FILES SUMMARY
+================================================================================
+
+Configuration:
+├─ src/utils/DatabaseConfig.java (connection settings)
+└─ src/utils/OracleDatabase.java (connection management)
+
+Services:
+├─ src/services/AuthService.java (login authentication)
+├─ src/services/QuizService.java (quiz management)
+└─ src/services/CGPAService.java (grade calculation)
+
+Repositories (Data Access):
+├─ src/repositories/SubjectRepository.java (with getByTeacher)
+├─ src/repositories/QuestionRepository.java (with deleteQuestion)
+├─ src/repositories/ResultRepository.java (with getByTeacher)
+├─ src/repositories/StudentRepository.java
+├─ src/repositories/TeacherRepository.java
+└─ src/repositories/QuizRepository.java
+
+Models (Data Objects):
+├─ src/models/UserModel.java (base)
+├─ src/models/TeacherModel.java
+├─ src/models/StudentModel.java
+├─ src/models/QuestionModel.java (with id field)
+├─ src/models/ResultModel.java
+└─ src/models/QuizModel.java
+
+GUI:
+├─ src/gui/MainApplication.java (entry point)
+├─ src/gui/LoginView.java (login screen)
+├─ src/gui/SceneManager.java (screen switcher)
+├─ src/gui/TeacherDashboard.java (with Questions tab delete feature)
+├─ src/gui/StudentDashboard.java (student portal)
+├─ src/gui/QuizView.java (quiz display)
+└─ src/css/style.css (styling)
+
+Startup:
+├─ run.bat (Windows batch launcher)
+├─ run.ps1 (PowerShell launcher)
+└─ Examvault/Examvault.iml (IDE project file)
+
+================================================================================
+END OF FLOW DOCUMENTATION
+================================================================================

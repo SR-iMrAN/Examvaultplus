@@ -265,7 +265,7 @@ public class StudentDashboard {
     }
 
     private void showCGPATab() {
-        CGPACalculatorView cgpaView = new CGPACalculatorView(student.getName() != null ? student.getName() : student.getUsername());
+        CGPACalculatorView cgpaView = new CGPACalculatorView(student);
         contentArea.setCenter(cgpaView.getRoot());
     }
 

@@ -5,7 +5,7 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
 ## 1. Basics of DBMS (Database Management System)
 - **Usage**: The entire application uses Oracle Database 23ai as the backend DBMS
 - **Files**: All repository classes in `src/repositories/` (StudentRepository.java, TeacherRepository.java, etc.)
-- **Description**: Handles data persistence, retrieval, and management for students, teachers, subjects, questions, quizzes, and results
+- **Description**: Handles data persistence, retrieval, and management for students, teachers, subjects, questions, quizzes, results, and CGPA history
 
 ## 2. ERD (Entity-Relationship Diagram) & Schema Design
 - **Usage**: Database schema with normalized tables and relationships
@@ -17,17 +17,20 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
   - STUDENTS, TEACHERS (inherit from USERS)
   - SUBJECTS, QUESTIONS, OPTIONS (subject-question-option hierarchy)
   - QUIZZES, QUIZ_ANSWERS, RESULTS (quiz tracking)
-  - CGPA_RECORDS, CGPA_SUBJECTS (CGPA calculations)
+  - CGPA_RECORDS, CGPA_SUBJECTS (CGPA calculation history)
 
 ## 3. SQL Queries (Without Join) & Sub-Queries
 - **Usage**: Basic SELECT, INSERT, UPDATE, DELETE operations
 - **Files**:
   - `src/repositories/SubjectRepository.java` - Basic subject queries
   - `src/repositories/QuestionRepository.java` - Question loading queries
+  - `src/repositories/CGPARepository.java` - CGPA history insert and lookup
   - Simple queries in other repositories for single-table operations
 - **Examples**:
   - SELECT SUBJECT_NAME FROM SUBJECTS
   - INSERT INTO SUBJECTS VALUES (...)
+  - INSERT INTO CGPA_RECORDS (CGPA_ID, STUDENT_ID, CALC_MODE, CALCULATED_GPA, CALC_DATE) VALUES (..., SYSDATE)
+  - INSERT INTO CGPA_SUBJECTS (CGPA_SUB_ID, CGPA_ID, SUBJECT_ID, MARKS, CREDIT_HOURS, GRADE_POINT) VALUES (...)
 
 ## 4. SQL Joins
 - **Usage**: Complex queries combining multiple tables
@@ -36,9 +39,11 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
   - `src/repositories/TeacherRepository.java` - JOIN USERS and TEACHERS
   - `src/repositories/ResultRepository.java` - JOIN RESULTS with SUBJECTS
   - `src/repositories/QuestionRepository.java` - JOIN QUESTIONS with OPTIONS
+  - `src/repositories/CGPARepository.java` - LEFT JOIN CGPA_RECORDS with CGPA_SUBJECTS
 - **Examples**:
   - SELECT s.STUDENT_ID, u.NAME FROM STUDENTS s JOIN USERS u ON s.USER_ID = u.USER_ID
   - SELECT r.*, subj.SUBJECT_NAME FROM RESULTS r JOIN SUBJECTS subj ON r.SUBJECT_ID = subj.SUBJECT_ID
+  - SELECT r.CGPA_ID, r.CALC_MODE, r.CALCULATED_GPA, r.CALC_DATE, s.SUBJECT_ID, s.MARKS, s.CREDIT_HOURS, s.GRADE_POINT FROM CGPA_RECORDS r LEFT JOIN CGPA_SUBJECTS s ON r.CGPA_ID = s.CGPA_ID WHERE r.STUDENT_ID = ?
 
 ## 5. Normalization up to BCNF using Functional Dependencies
 - **Usage**: Database schema follows normalization principles
@@ -49,6 +54,8 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
   - QUESTION_ID → SUBJECT_ID, QUESTION_TEXT (QUESTIONS table)
   - OPTION_ID → QUESTION_ID, OPTION_TEXT (OPTIONS table)
   - RESULT_ID → STUDENT_ID, SUBJECT_ID, QUIZ_ID (RESULTS table)
+  - CGPA_ID → STUDENT_ID, CALC_MODE, CALCULATED_GPA, CALC_DATE (CGPA_RECORDS table)
+  - CGPA_SUB_ID → CGPA_ID, SUBJECT_ID, MARKS, CREDIT_HOURS, GRADE_POINT (CGPA_SUBJECTS table)
 - **BCNF Compliance**: Tables are in BCNF with proper foreign key constraints
 
 ## 6. Views, Triggers, Integrity Constraints, Roles
@@ -57,6 +64,7 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
 - **Examples**:
   - Foreign Key Constraints: REFERENCES clauses in table definitions
   - Check Constraints: ROLE IN ('STUDENT', 'TEACHER')
+  - Check Constraint on `CGPA_RECORDS.CALC_MODE`: allowed values include `MARKS_BASED` and `SUBJECT_BASED`
   - Triggers: Auto-generated constraint names like SYS_C003529375
   - Roles: USER table has ROLE column for access control
 
@@ -65,9 +73,20 @@ This document maps SQL concepts to their usage in the ExamVaultPlus JavaFX appli
 - **Files**: SQL procedure definitions in user context
 - **Description**: Custom procedures for advanced database operations (though not directly called in Java code)
 
+## 8. CGPA History and Constraint Details
+- **Usage**: The latest update adds persistent CGPA history storage and retrieval
+- **Files**:
+  - `src/repositories/CGPARepository.java` - Save and load CGPA history
+  - `src/gui/CGPACalculatorView.java` - Save history button and history tab
+- **Key points**:
+  - CGPA history is split into CGPA summary (`CGPA_RECORDS`) and subject detail rows (`CGPA_SUBJECTS`)
+  - `CALC_MODE` values must match the database constraint: `MARKS_BASED` or `SUBJECT_BASED`
+  - IDs are generated as fixed-width numeric strings to fit the Oracle VARCHAR2 column lengths
+  - `SUBJECT_ID` is a foreign key from the existing `SUBJECTS` table, not the same as `CGPA_ID`
+
 ## Additional SQL Concepts Used:
 - **Indexes**: CREATE INDEX statements for performance
-- **Sequences/Auto-increment**: ID generation using System.nanoTime() in Java code
-- **Transactions**: Implicit transactions in repository save methods
+- **ID Generation**: Fixed-width string IDs to fit VARCHAR2(10) columns and avoid raw System.nanoTime overflow
+- **Transactions**: Explicit transaction control for CGPA_SUBJECT inserts and implicit commit on other repository saves
 - **Data Types**: VARCHAR2, NUMBER, DATE in Oracle
 - **Constraints**: PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK

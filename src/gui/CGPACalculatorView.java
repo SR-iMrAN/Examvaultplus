@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import models.StudentModel;
+import repositories.CGPARepository;
 import services.CGPAService;
 
 import java.util.ArrayList;
@@ -12,11 +14,15 @@ import java.util.List;
 public class CGPACalculatorView {
 
     private BorderPane root;
-    private String studentName;
+    private final StudentModel student;
     private StackPane contentArea;
+    private TableView<models.CGPARecordModel> historyTable;
+    private List<CGPARepository.SubjectEntry> lastSubjectEntries;
+    private double lastCalculatedGpa;
+    private String lastCalcMode;
 
-    public CGPACalculatorView(String studentName) {
-        this.studentName = studentName;
+    public CGPACalculatorView(StudentModel student) {
+        this.student = student;
         root = new BorderPane();
         root.setStyle("-fx-background-color: #0f1117;");
         root.setCenter(buildMain());
@@ -41,6 +47,7 @@ public class CGPACalculatorView {
 
         ToggleButton marksMode = new ToggleButton("Marks-Based GPA");
         ToggleButton subjectMode = new ToggleButton("Subject-Based CGPA");
+        ToggleButton historyMode = new ToggleButton("History");
 
         String activeStyle = "-fx-background-color: #1c2128; -fx-text-fill: #3b82f6; -fx-font-weight: bold; " +
                 "-fx-font-size: 13px; -fx-padding: 7px 18px; -fx-background-radius: 4px; -fx-cursor: hand; -fx-border-color: transparent;";
@@ -49,26 +56,40 @@ public class CGPACalculatorView {
 
         marksMode.setStyle(activeStyle);
         subjectMode.setStyle(inactiveStyle);
+        historyMode.setStyle(inactiveStyle);
         ToggleGroup modeGroup = new ToggleGroup();
-        marksMode.setToggleGroup(modeGroup); subjectMode.setToggleGroup(modeGroup);
+        marksMode.setToggleGroup(modeGroup);
+        subjectMode.setToggleGroup(modeGroup);
+        historyMode.setToggleGroup(modeGroup);
         marksMode.setSelected(true);
-        modeBar.getChildren().addAll(marksMode, subjectMode);
+        modeBar.getChildren().addAll(marksMode, subjectMode, historyMode);
 
         contentArea = new StackPane();
         VBox marksContent = buildMarksContent();
         VBox subjectContent = buildSubjectContent();
+        VBox historyContent = buildHistoryContent();
         subjectContent.setVisible(false); subjectContent.setManaged(false);
-        contentArea.getChildren().addAll(marksContent, subjectContent);
+        historyContent.setVisible(false); historyContent.setManaged(false);
+        contentArea.getChildren().addAll(marksContent, subjectContent, historyContent);
 
         marksMode.setOnAction(e -> {
-            marksMode.setStyle(activeStyle); subjectMode.setStyle(inactiveStyle);
+            marksMode.setStyle(activeStyle); subjectMode.setStyle(inactiveStyle); historyMode.setStyle(inactiveStyle);
             marksContent.setVisible(true); marksContent.setManaged(true);
             subjectContent.setVisible(false); subjectContent.setManaged(false);
+            historyContent.setVisible(false); historyContent.setManaged(false);
         });
         subjectMode.setOnAction(e -> {
-            subjectMode.setStyle(activeStyle); marksMode.setStyle(inactiveStyle);
+            subjectMode.setStyle(activeStyle); marksMode.setStyle(inactiveStyle); historyMode.setStyle(inactiveStyle);
             subjectContent.setVisible(true); subjectContent.setManaged(true);
             marksContent.setVisible(false); marksContent.setManaged(false);
+            historyContent.setVisible(false); historyContent.setManaged(false);
+        });
+        historyMode.setOnAction(e -> {
+            historyMode.setStyle(activeStyle); marksMode.setStyle(inactiveStyle); subjectMode.setStyle(inactiveStyle);
+            historyContent.setVisible(true); historyContent.setManaged(true);
+            marksContent.setVisible(false); marksContent.setManaged(false);
+            subjectContent.setVisible(false); subjectContent.setManaged(false);
+            refreshHistory();
         });
 
         outer.getChildren().addAll(header, modeBar, contentArea);
@@ -146,10 +167,21 @@ public class CGPACalculatorView {
                 }
                 if (total < 0 || total > 100) { errorLbl.setText("Total must be between 0 and 100."); errorLbl.setVisible(true); return; }
                 String[] info = CGPAService.getGradeInfoByMarks(total);
-                showGPAResult(resultBox, total, info);
+                lastCalcMode = "MARKS";
+                lastCalculatedGpa = Double.parseDouble(info[1]);
+                lastSubjectEntries = null;
+                showGPAResult(resultBox, total, info, () -> {
+                    boolean saved = CGPARepository.saveMarksRecord(student.getUsername(), lastCalculatedGpa);
+                    errorLbl.setText(saved ? "Saved CGPA history successfully." : "Failed to save CGPA history.");
+                    errorLbl.getStyleClass().removeAll("text-danger", "text-success");
+                    errorLbl.getStyleClass().add(saved ? "text-success" : "text-danger");
+                    errorLbl.setVisible(true);
+                });
                 resultBox.setVisible(true); resultBox.setManaged(true);
             } catch (NumberFormatException ex) {
-                errorLbl.setText("Please enter valid numbers only."); errorLbl.setVisible(true);
+                errorLbl.setText("Please enter valid numbers only."); errorLbl.getStyleClass().removeAll("text-success");
+                errorLbl.getStyleClass().add("text-danger");
+                errorLbl.setVisible(true);
             }
         });
 
@@ -158,7 +190,7 @@ public class CGPACalculatorView {
         return box;
     }
 
-    private void showGPAResult(VBox resultBox, double total, String[] info) {
+    private void showGPAResult(VBox resultBox, double total, String[] info, Runnable saveAction) {
         resultBox.getChildren().clear();
         VBox card = new VBox(16);
         card.getStyleClass().add("card");
@@ -167,7 +199,7 @@ public class CGPACalculatorView {
         Label emoji = new Label(Double.parseDouble(info[1]) >= 3.5 ? "🎉" : Double.parseDouble(info[1]) >= 2.5 ? "👍" : "📚");
         emoji.setStyle("-fx-font-size: 36px;");
 
-        Label congrats = new Label("Congratulations, " + studentName + "!");
+        Label congrats = new Label("Congratulations, " + (student.getName() != null && !student.getName().isEmpty() ? student.getName() : student.getUsername()) + "!");
         congrats.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #e6edf3;");
 
         Label remarkLbl = new Label(info[2] + " Result");
@@ -181,12 +213,11 @@ public class CGPACalculatorView {
             resultStat("Grade Point", info[1], "#22c55e")
         );
 
-        // Grade table reference
-        Label tableTitle = new Label("Grade Scale Reference");
-        tableTitle.getStyleClass().add("text-secondary");
-        tableTitle.setPadding(new Insets(8, 0, 4, 0));
+        Button saveBtn = new Button("Save History");
+        saveBtn.getStyleClass().add("btn-secondary");
+        saveBtn.setOnAction(e -> saveAction.run());
 
-        card.getChildren().addAll(emoji, congrats, remarkLbl, new Separator(), statsRow);
+        card.getChildren().addAll(emoji, congrats, remarkLbl, new Separator(), statsRow, saveBtn);
         resultBox.getChildren().add(card);
     }
 
@@ -242,14 +273,21 @@ public class CGPACalculatorView {
 
         calcBtn.setOnAction(e -> {
             errorLbl.setVisible(false);
-            List<double[]> entries = new ArrayList<>();
+            List<CGPARepository.SubjectEntry> entries = new ArrayList<>();
             for (int i = 0; i < subjectRows.getChildren().size(); i++) {
                 HBox row = (HBox) subjectRows.getChildren().get(i);
+                TextField nameField = (TextField) row.getChildren().get(1);
                 TextField gradeField = (TextField) row.getChildren().get(2);
                 TextField creditField = (TextField) row.getChildren().get(4);
+                String subjectName = nameField.getText().trim();
                 String gradeInput = gradeField.getText().trim();
                 String creditInput = creditField.getText().trim();
-                if (gradeInput.isEmpty() || creditInput.isEmpty()) continue;
+                if (subjectName.isEmpty() && gradeInput.isEmpty() && creditInput.isEmpty()) continue;
+                if (subjectName.isEmpty() || gradeInput.isEmpty() || creditInput.isEmpty()) {
+                    errorLbl.setText("Please fill subject name, grade, and credits for each row.");
+                    errorLbl.setVisible(true);
+                    return;
+                }
                 double gp;
                 try {
                     if (gradeInput.matches("\\d+(\\.\\d+)?")) {
@@ -262,17 +300,29 @@ public class CGPACalculatorView {
                     }
                     double credit = Double.parseDouble(creditInput);
                     if (credit <= 0) { errorLbl.setText("Credit hours must be positive."); errorLbl.setVisible(true); return; }
-                    entries.add(new double[]{gp, credit});
+                    entries.add(new CGPARepository.SubjectEntry(subjectName, 0, credit, gp));
                 } catch (NumberFormatException ex) {
                     errorLbl.setText("Invalid number in row " + (i + 1)); errorLbl.setVisible(true); return;
                 }
             }
             if (entries.isEmpty()) { errorLbl.setText("Please add at least one subject."); errorLbl.setVisible(true); return; }
             double totalCredits = 0, weighted = 0;
-            for (double[] en : entries) { weighted += en[0] * en[1]; totalCredits += en[1]; }
+            for (CGPARepository.SubjectEntry en : entries) {
+                weighted += en.getGradePoint() * en.getCreditHours();
+                totalCredits += en.getCreditHours();
+            }
             double cgpa = totalCredits > 0 ? weighted / totalCredits : 0;
             String[] info = CGPAService.getGradeInfoByMarks(CGPAService.cgpaToMarks(cgpa));
-            showCGPAResult(resultBox, cgpa, info, totalCredits);
+            lastCalcMode = "SUBJECT";
+            lastCalculatedGpa = cgpa;
+            lastSubjectEntries = entries;
+            showCGPAResult(resultBox, cgpa, info, () -> {
+                boolean saved = CGPARepository.saveSubjectRecord(student.getUsername(), lastCalculatedGpa, lastSubjectEntries);
+                errorLbl.setText(saved ? "Saved CGPA history successfully." : "Failed to save CGPA history.");
+                errorLbl.getStyleClass().removeAll("text-danger", "text-success");
+                errorLbl.getStyleClass().add(saved ? "text-success" : "text-danger");
+                errorLbl.setVisible(true);
+            }, totalCredits);
             resultBox.setVisible(true); resultBox.setManaged(true);
         });
 
@@ -318,7 +368,7 @@ public class CGPACalculatorView {
         container.getChildren().add(row);
     }
 
-    private void showCGPAResult(VBox resultBox, double cgpa, String[] info, double totalCredits) {
+    private void showCGPAResult(VBox resultBox, double cgpa, String[] info, Runnable saveAction, double totalCredits) {
         resultBox.getChildren().clear();
         VBox card = new VBox(16);
         card.getStyleClass().add("card");
@@ -326,7 +376,7 @@ public class CGPACalculatorView {
 
         Label emoji = new Label(cgpa >= 3.5 ? "🎉" : cgpa >= 2.5 ? "👍" : "📚");
         emoji.setStyle("-fx-font-size: 36px;");
-        Label congrats = new Label("Congratulations, " + studentName + "!");
+        Label congrats = new Label("Congratulations, " + (student.getName() != null && !student.getName().isEmpty() ? student.getName() : student.getUsername()) + "!");
         congrats.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #e6edf3;");
         Label remarkLbl = new Label(info[2] + " Result");
         remarkLbl.getStyleClass().add("text-secondary");
@@ -338,8 +388,79 @@ public class CGPACalculatorView {
             resultStat("Grade", info[0], "#22c55e"),
             resultStat("Total Credits", String.format("%.1f", totalCredits), "#f59e0b")
         );
-        card.getChildren().addAll(emoji, congrats, remarkLbl, new Separator(), statsRow);
+
+        Button saveBtn = new Button("Save History");
+        saveBtn.getStyleClass().add("btn-secondary");
+        saveBtn.setOnAction(e -> saveAction.run());
+
+        card.getChildren().addAll(emoji, congrats, remarkLbl, new Separator(), statsRow, saveBtn);
         resultBox.getChildren().add(card);
+    }
+
+    private VBox buildHistoryContent() {
+        VBox box = new VBox(20);
+        box.setMaxWidth(860);
+
+        Label heading = new Label("CGPA History");
+        heading.getStyleClass().add("heading-lg");
+
+        Label sub = new Label("View your past CGPA calculations saved to the database.");
+        sub.getStyleClass().add("text-secondary");
+
+        HBox toolbar = new HBox(12);
+        toolbar.setAlignment(Pos.CENTER_LEFT);
+        Button refreshBtn = new Button("Refresh");
+        refreshBtn.getStyleClass().add("btn-secondary");
+        refreshBtn.setOnAction(e -> refreshHistory());
+        toolbar.getChildren().addAll(refreshBtn);
+
+        historyTable = new TableView<>();
+        historyTable.setStyle("-fx-background-color: #1c2128; -fx-border-color: #30363d; -fx-background-radius: 8px;");
+        historyTable.getStyleClass().add("table-view");
+        historyTable.setPrefHeight(360);
+
+        TableColumn<models.CGPARecordModel, String> modeCol = new TableColumn<>("Mode");
+        modeCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getCalcMode()));
+        modeCol.setPrefWidth(120);
+
+        TableColumn<models.CGPARecordModel, String> gpaCol = new TableColumn<>("GPA");
+        gpaCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(String.format("%.2f", d.getValue().getCalculatedGpa())));
+        gpaCol.setPrefWidth(100);
+
+        TableColumn<models.CGPARecordModel, String> dateCol = new TableColumn<>("Date");
+        dateCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getCalcDate()));
+        dateCol.setPrefWidth(180);
+
+        TableColumn<models.CGPARecordModel, String> subjectCol = new TableColumn<>("Subject ID");
+        subjectCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getSubjectReference()));
+        subjectCol.setPrefWidth(140);
+
+        TableColumn<models.CGPARecordModel, String> creditCol = new TableColumn<>("Credits");
+        creditCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                d.getValue().getCreditHours() > 0 ? String.format("%.1f", d.getValue().getCreditHours()) : ""));
+        creditCol.setPrefWidth(100);
+
+        TableColumn<models.CGPARecordModel, String> gradePointCol = new TableColumn<>("Grade Point");
+        gradePointCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                d.getValue().getGradePoint() > 0 ? String.format("%.2f", d.getValue().getGradePoint()) : ""));
+        gradePointCol.setPrefWidth(120);
+
+        TableColumn<models.CGPARecordModel, String> marksCol = new TableColumn<>("Marks");
+        marksCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(
+                d.getValue().getMarks() > 0 ? String.format("%.1f", d.getValue().getMarks()) : ""));
+        marksCol.setPrefWidth(100);
+
+        historyTable.getColumns().addAll(modeCol, gpaCol, dateCol, subjectCol, creditCol, gradePointCol, marksCol);
+        historyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        box.getChildren().addAll(heading, sub, toolbar, historyTable);
+        return box;
+    }
+
+    private void refreshHistory() {
+        if (historyTable != null) {
+            historyTable.getItems().setAll(repositories.CGPARepository.getHistory(student.getUsername()));
+        }
     }
 
     private VBox buildGradeReference() {
